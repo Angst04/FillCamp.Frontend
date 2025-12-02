@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* DX-Rigraf Custom Font - Add font files to public/fonts/ directory */
+@font-face {
+    font-family: "DX-Rigraf";
+    src: url("/fonts/DX-Rigraf-Bold.woff2") format("woff2"),
+        url("/fonts/DX-Rigraf-Bold.woff") format("woff");
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+:root {
+    /* Primary Colors */
+    --color-primary: #ed0000;
+    --color-secondary: #0048f2;
+
+    /* Background Colors */
+    --color-background: #f0f0e9;
+    --color-background-dark: #0b0b0b;
+    --color-surface: #f0f0e9;
+    --color-surface-light: #f0f0f0;
+    --color-surface-lighter: #f7f7f7;
+
+    /* Text Colors */
+    --color-foreground: #000000;
+    --color-text-gray: #656565;
+
+    /* Border Colors */
+    --color-border: #000000;
+}
+
+@theme inline {
+    /* Colors */
+    --color-primary: #ed0000;
+    --color-secondary: #0048f2;
+    --color-background: #ffffff;
+    --color-background-dark: #0b0b0b;
+    --color-surface: #f0f0e9;
+    --color-surface-light: #f0f0f0;
+    --color-surface-lighter: #f7f7f7;
+    --color-foreground: #000000;
+    --color-text-gray: #656565;
+    --color-border: #000000;
+
+    /* Fonts */
+    --font-heading: "DX-Rigraf", var(--font-inter), system-ui, -apple-system,
+        sans-serif;
+    --font-body: var(--font-inter), system-ui, -apple-system, sans-serif;
+}
+
+body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
