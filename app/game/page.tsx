@@ -67,7 +67,7 @@ export default function GamePage() {
             initial="initial"
             animate="animate"
             exit="exit"
-            className="min-h-screen px-4 py-6 pb-20"
+            className="min-h-screen px-4 pb-20 pt-10 mt-[-20px]"
             style={{
                 background: "linear-gradient(126deg, #0048F2 0%, #F0F0E9 80%)",
             }}
