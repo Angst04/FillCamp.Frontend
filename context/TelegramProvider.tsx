@@ -1,6 +1,12 @@
-'use client';
+"use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
 
 interface TelegramUser {
   id: number;
@@ -31,28 +37,35 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== "undefined") {
       const tg = window.Telegram?.WebApp;
-      
+
       if (tg) {
-        tg.ready();
-        tg.expand();
-        setWebApp(tg);
-        
-        const telegramUser = tg.initDataUnsafe?.user;
-        if (telegramUser) {
-          setUser(telegramUser);
+        try {
+          tg.ready();
+          tg.expand();
+          tg.requestFullscreen();
+          setWebApp(tg);
+
+          const telegramUser = tg.initDataUnsafe?.user;
+          if (telegramUser) {
+            setUser(telegramUser);
+          }
+
+          setIsReady(true);
+        } catch (e) {
+          console.warn(`Ошибка инициализации Telegram WebApp: ${e}`);
         }
-        
-        setIsReady(true);
       } else {
         // Для тестирования вне Telegram
-        console.warn('Telegram WebApp не доступен. Используем моковые данные для разработки.');
+        console.warn(
+          "Telegram WebApp не доступен. Используем моковые данные для разработки."
+        );
         setUser({
           id: 123456789,
-          first_name: 'Тестовый',
-          last_name: 'Пользователь',
-          username: 'testuser',
+          first_name: "Тестовый",
+          last_name: "Пользователь",
+          username: "testuser",
         });
         setIsReady(true);
       }
@@ -65,4 +78,3 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
     </TelegramContext.Provider>
   );
 }
-

@@ -63,6 +63,7 @@ declare global {
         };
         ready: () => void;
         expand: () => void;
+        requestFullscreen: () => void;
         close: () => void;
         sendData: (data: string) => void;
         openLink: (url: string) => void;
