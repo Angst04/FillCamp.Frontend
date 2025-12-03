@@ -1,6 +1,6 @@
 // API утилиты для взаимодействия с бэкендом
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
 
 export interface ApiResponse<T> {
   data?: T;
@@ -17,7 +17,7 @@ async function fetchAPI<T>(
     const response = await fetch(`${API_URL}${endpoint}`, {
       ...options,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...options.headers,
       },
     });
@@ -26,7 +26,7 @@ async function fetchAPI<T>(
 
     if (!response.ok) {
       return {
-        error: data.message || 'Произошла ошибка',
+        error: data.message || "Произошла ошибка",
         status: response.status,
       };
     }
@@ -36,9 +36,9 @@ async function fetchAPI<T>(
       status: response.status,
     };
   } catch (error) {
-    console.error('API Error:', error);
+    console.error("API Error:", error);
     return {
-      error: 'Ошибка сети',
+      error: "Ошибка сети",
       status: 500,
     };
   }
@@ -52,7 +52,7 @@ export async function getUserProfile(telegramId: number) {
 // Обновление профиля
 export async function updateUserProfile(telegramId: number, data: any) {
   return fetchAPI(`/users/${telegramId}`, {
-    method: 'PUT',
+    method: "PUT",
     body: JSON.stringify(data),
   });
 }
@@ -64,13 +64,13 @@ export async function getNews(limit = 10, offset = 0) {
 
 // Получение товаров магазина
 export async function getProducts() {
-  return fetchAPI('/products');
+  return fetchAPI("/products");
 }
 
 // Создание заказа
 export async function createOrder(telegramId: number, items: any[]) {
-  return fetchAPI('/orders', {
-    method: 'POST',
+  return fetchAPI("/orders", {
+    method: "POST",
     body: JSON.stringify({
       telegram_id: telegramId,
       items,
@@ -95,7 +95,7 @@ export async function saveGameProgress(
   energy: number
 ) {
   return fetchAPI(`/game/${telegramId}/progress`, {
-    method: 'POST',
+    method: "POST",
     body: JSON.stringify({ coins, energy }),
   });
 }
@@ -110,4 +110,3 @@ export default {
   getGameStats,
   saveGameProgress,
 };
-
