@@ -32,7 +32,7 @@ export default function RootLayout({
             </head>
             <body
                 style={{
-                    marginTop: 'var(--tg-content-safe-area-inset-top)',
+                    marginTop: 'calc(var(--tg-content-safe-area-inset-top) + 10px)',
                 }}
                 className={`${inter.variable} antialiased`}
                 suppressHydrationWarning
