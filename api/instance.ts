@@ -108,7 +108,15 @@ export class HttpClient {
         error
       };
     } catch (error) {
-      throw new Error(`Request failed: ${error instanceof Error ? error.message : String(error)}`);
+      return {
+        success: false,
+        status: 0,
+        statusText: "Network Error",
+        data: undefined,
+        error: {
+          detail: error instanceof Error ? error.message : String(error)
+        }
+      };
     }
   }
 
