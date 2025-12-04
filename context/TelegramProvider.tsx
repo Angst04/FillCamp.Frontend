@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
 
 interface TelegramContextType {
   user: TelegramUser | null;
@@ -24,33 +24,26 @@ const TelegramContext = createContext<TelegramContextType>({
 export const useTelegram = () => useContext(TelegramContext);
 
 export function TelegramProvider({ children }: { children: ReactNode }) {
-  const state = useMemo<TelegramContextType>(() => {
+  const [state, setState] = useState<TelegramContextType>({
+    user: null,
+    webApp: null,
+    isReady: false
+  });
+
+  const initTelegram = useCallback(() => {
     const tg = window.Telegram?.WebApp;
-
     if (tg) {
-      return {
+      setState({
         webApp: tg,
-        user: tg.initDataUnsafe?.user ?? null,
+        user: tg.initDataUnsafe?.user ?? MOCK_USER,
         isReady: true
-      };
+      });
     }
-
-    console.warn("Telegram WebApp не доступен. Используем моковые данные для разработки.");
-    return { webApp: null, user: MOCK_USER, isReady: true };
   }, []);
 
   useEffect(() => {
-    const tg = state.webApp;
-    if (!tg) return;
-
-    try {
-      tg.ready();
-      tg.expand();
-      tg.requestFullscreen();
-    } catch (e) {
-      console.warn(`Ошибка инициализации Telegram WebApp: ${e}`);
-    }
-  }, [state.webApp]);
+    initTelegram();
+  }, [initTelegram]);
 
   return <TelegramContext.Provider value={state}>{children}</TelegramContext.Provider>;
 }
