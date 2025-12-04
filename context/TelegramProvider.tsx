@@ -1,80 +1,60 @@
 "use client";
 
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
-
-interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  language_code?: string;
-  photo_url?: string;
-}
+import { createContext, useContext, useEffect, useMemo, ReactNode } from "react";
 
 interface TelegramContextType {
   user: TelegramUser | null;
-  webApp: any | null;
+  webApp: WebApp | null;
   isReady: boolean;
 }
+
+const MOCK_USER: TelegramUser = {
+  id: 123456789,
+  first_name: "Тестовый",
+  last_name: "Пользователь",
+  username: "testuser"
+};
 
 const TelegramContext = createContext<TelegramContextType>({
   user: null,
   webApp: null,
-  isReady: false,
+  isReady: false
 });
 
 export const useTelegram = () => useContext(TelegramContext);
 
 export function TelegramProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<TelegramUser | null>(null);
-  const [webApp, setWebApp] = useState<any | null>(null);
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const tg = window.Telegram?.WebApp;
-
-      if (tg) {
-        try {
-          tg.ready();
-          tg.expand();
-          tg.requestFullscreen();
-          setWebApp(tg);
-
-          const telegramUser = tg.initDataUnsafe?.user;
-          if (telegramUser) {
-            setUser(telegramUser);
-          }
-
-          setIsReady(true);
-        } catch (e) {
-          console.warn(`Ошибка инициализации Telegram WebApp: ${e}`);
-        }
-      } else {
-        // Для тестирования вне Telegram
-        console.warn(
-          "Telegram WebApp не доступен. Используем моковые данные для разработки."
-        );
-        setUser({
-          id: 123456789,
-          first_name: "Тестовый",
-          last_name: "Пользователь",
-          username: "testuser",
-        });
-        setIsReady(true);
-      }
+  const state = useMemo<TelegramContextType>(() => {
+    if (typeof window === "undefined") {
+      return { user: null, webApp: null, isReady: false };
     }
+
+    const tg = window.Telegram?.WebApp;
+
+    if (tg) {
+      return {
+        webApp: tg,
+        user: tg.initDataUnsafe?.user ?? null,
+        isReady: true
+      };
+    }
+
+    console.warn("Telegram WebApp не доступен. Используем моковые данные для разработки.");
+    return { webApp: null, user: MOCK_USER, isReady: true };
   }, []);
 
-  return (
-    <TelegramContext.Provider value={{ user, webApp, isReady }}>
-      {children}
-    </TelegramContext.Provider>
-  );
+  useEffect(() => {
+    const tg = state.webApp;
+    if (!tg) return;
+
+    try {
+      tg.ready();
+      tg.expand();
+      tg.requestFullscreen();
+    } catch (e) {
+      console.warn(`Ошибка инициализации Telegram WebApp: ${e}`);
+    }
+  }, [state.webApp]);
+
+  return <TelegramContext.Provider value={state}>{children}</TelegramContext.Provider>;
 }

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { ShoppingBag } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
-import { iconButtonVariants, badgeVariants } from '@/lib/animations';
+import { ShoppingBag } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { iconButtonVariants, badgeVariants } from "@/lib/animations";
 
 interface CartButtonProps {
   itemCount: number;
@@ -10,11 +10,7 @@ interface CartButtonProps {
   className?: string;
 }
 
-export default function CartButton({
-  itemCount,
-  onClick,
-  className = '',
-}: CartButtonProps) {
+export default function CartButton({ itemCount, onClick, className = "" }: CartButtonProps) {
   return (
     <motion.button
       onClick={onClick}
@@ -25,10 +21,7 @@ export default function CartButton({
       className={`relative bg-[#0048F2] text-white p-4 rounded-full shadow-lg ${className}`}
       aria-label="Открыть корзину"
     >
-      <motion.div
-        animate={itemCount > 0 ? { rotate: [0, -10, 10, 0] } : {}}
-        transition={{ duration: 0.5 }}
-      >
+      <motion.div animate={itemCount > 0 ? { rotate: [0, -10, 10, 0] } : {}} transition={{ duration: 0.5 }}>
         <ShoppingBag size={28} strokeWidth={2} />
       </motion.div>
       <AnimatePresence>
@@ -47,4 +40,3 @@ export default function CartButton({
     </motion.button>
   );
 }
-

@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
-import { motion } from 'motion/react';
-import { cardVariants } from '@/lib/animations';
+import { ReactNode } from "react";
+import { motion } from "motion/react";
+import { cardVariants } from "@/lib/animations";
 
 interface GradientCardProps {
   children: ReactNode;
@@ -10,10 +10,10 @@ interface GradientCardProps {
   className?: string;
 }
 
-export default function GradientCard({ 
-  children, 
-  gradient = 'from-blue-500 to-purple-600',
-  className = '' 
+export default function GradientCard({
+  children,
+  gradient = "from-blue-500 to-purple-600",
+  className = ""
 }: GradientCardProps) {
   return (
     <motion.div
@@ -28,4 +28,3 @@ export default function GradientCard({
     </motion.div>
   );
 }
-

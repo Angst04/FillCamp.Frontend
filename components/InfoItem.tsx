@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { LucideIcon } from 'lucide-react';
-import { motion } from 'motion/react';
-import { listItemVariants } from '@/lib/animations';
+import { LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
+import { listItemVariants } from "@/lib/animations";
 
 interface InfoItemProps {
   icon: LucideIcon;
@@ -17,9 +17,9 @@ export default function InfoItem({
   icon: Icon,
   label,
   value,
-  iconColor = 'text-blue-600',
-  iconBgColor = 'bg-blue-100',
-  className = '',
+  iconColor = "text-blue-600",
+  iconBgColor = "bg-blue-100",
+  className = ""
 }: InfoItemProps) {
   return (
     <motion.div
@@ -32,7 +32,7 @@ export default function InfoItem({
       <motion.div
         className={`w-10 h-10 ${iconBgColor} rounded-full flex items-center justify-center`}
         whileHover={{ scale: 1.15, rotate: 10 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
         <Icon size={20} className={iconColor} />
       </motion.div>
@@ -43,4 +43,3 @@ export default function InfoItem({
     </motion.div>
   );
 }
-

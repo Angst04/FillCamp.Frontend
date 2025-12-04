@@ -6,42 +6,39 @@ import Navigation from "@/components/Navigation";
 import Script from "next/script";
 
 const inter = Inter({
-    variable: "--font-inter",
-    subsets: ["latin", "cyrillic"],
-    weight: ["400", "500", "600", "700"],
-    display: "swap",
+  variable: "--font-inter",
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap"
 });
 
 export const metadata: Metadata = {
-    title: "Лагерь - Mini App",
-    description: "Telegram Mini App для лагеря",
+  title: "Лагерь - Mini App",
+  description: "Telegram Mini App для лагеря"
 };
 
 export default function RootLayout({
-    children,
+  children
 }: Readonly<{
-    children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <html lang="ru" suppressHydrationWarning>
-            <head>
-                <Script
-                    src="https://telegram.org/js/telegram-web-app.js"
-                    strategy="beforeInteractive"
-                />
-            </head>
-            <body
-                style={{
-                    marginTop: 'calc(var(--tg-content-safe-area-inset-top) + 20px)',
-                }}
-                className={`${inter.variable} antialiased`}
-                suppressHydrationWarning
-            >
-                <TelegramProvider>
-                    <div className="min-h-screen pb-16">{children}</div>
-                    <Navigation />
-                </TelegramProvider>
-            </body>
-        </html>
-    );
+  return (
+    <html lang="ru" suppressHydrationWarning>
+      <head>
+        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+      </head>
+      <body
+        style={{
+          marginTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
+        }}
+        className={`${inter.variable} antialiased`}
+        suppressHydrationWarning
+      >
+        <TelegramProvider>
+          <div className="min-h-screen pb-16">{children}</div>
+          <Navigation />
+        </TelegramProvider>
+      </body>
+    </html>
+  );
 }

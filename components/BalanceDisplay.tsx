@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { LucideIcon } from 'lucide-react';
-import { motion } from 'motion/react';
-import { cardVariants, counterVariants } from '@/lib/animations';
+import { LucideIcon } from "lucide-react";
+import { motion } from "motion/react";
+import { cardVariants, counterVariants } from "@/lib/animations";
 
 interface BalanceDisplayProps {
   icon: LucideIcon;
@@ -16,8 +16,8 @@ export default function BalanceDisplay({
   icon: Icon,
   label,
   amount,
-  gradient = 'from-yellow-400 to-orange-500',
-  className = '',
+  gradient = "from-yellow-400 to-orange-500",
+  className = ""
 }: BalanceDisplayProps) {
   return (
     <motion.div
@@ -39,15 +39,9 @@ export default function BalanceDisplay({
         </motion.div>
         <span className="font-semibold">{label}</span>
       </motion.div>
-      <motion.span
-        className="text-2xl font-bold"
-        variants={counterVariants}
-        animate="increase"
-        key={amount}
-      >
+      <motion.span className="text-2xl font-bold" variants={counterVariants} animate="increase" key={amount}>
         {amount.toLocaleString()}
       </motion.span>
     </motion.div>
   );
 }
-

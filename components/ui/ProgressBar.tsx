@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { motion } from 'motion/react';
+import { motion } from "motion/react";
 
 interface ProgressBarProps {
   current: number;
@@ -13,9 +13,9 @@ interface ProgressBarProps {
 export default function ProgressBar({
   current,
   max,
-  gradient = 'from-yellow-400 to-yellow-500',
-  height = 'h-4',
-  className = '',
+  gradient = "from-yellow-400 to-yellow-500",
+  height = "h-4",
+  className = ""
 }: ProgressBarProps) {
   const percentage = Math.min((current / max) * 100, 100);
 
@@ -26,12 +26,11 @@ export default function ProgressBar({
         initial={{ width: 0 }}
         animate={{ width: `${percentage}%` }}
         transition={{
-          type: 'spring',
+          type: "spring",
           stiffness: 200,
-          damping: 25,
+          damping: 25
         }}
       />
     </div>
   );
 }
-

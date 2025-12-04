@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { Component, ReactNode } from 'react';
+import { Component, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
@@ -26,12 +26,8 @@ export default class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="flex items-center justify-center min-h-screen px-4">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
-              Что-то пошло не так 😕
-            </h1>
-            <p className="text-gray-600 mb-4">
-              Произошла ошибка при загрузке страницы
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Что-то пошло не так 😕</h1>
+            <p className="text-gray-600 mb-4">Произошла ошибка при загрузке страницы</p>
             <button
               onClick={() => window.location.reload()}
               className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
@@ -46,4 +42,3 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-
