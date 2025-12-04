@@ -25,10 +25,6 @@ export const useTelegram = () => useContext(TelegramContext);
 
 export function TelegramProvider({ children }: { children: ReactNode }) {
   const state = useMemo<TelegramContextType>(() => {
-    if (typeof window === "undefined") {
-      return { user: null, webApp: null, isReady: false };
-    }
-
     const tg = window.Telegram?.WebApp;
 
     if (tg) {

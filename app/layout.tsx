@@ -4,6 +4,7 @@ import "./globals.css";
 import { TelegramProvider } from "@/context/TelegramProvider";
 import Navigation from "@/components/Navigation";
 import Script from "next/script";
+import { QueryProvider } from "@/context/QueryProvider";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,12 +33,13 @@ export default function RootLayout({
           marginTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
         }}
         className={`${inter.variable} antialiased`}
-        suppressHydrationWarning
       >
-        <TelegramProvider>
-          <div className="min-h-screen pb-16">{children}</div>
-          <Navigation />
-        </TelegramProvider>
+        <QueryProvider>
+          <TelegramProvider>
+            <div className="min-h-screen pb-16">{children}</div>
+            <Navigation />
+          </TelegramProvider>
+        </QueryProvider>
       </body>
     </html>
   );
