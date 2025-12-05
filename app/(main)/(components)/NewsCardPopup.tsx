@@ -16,7 +16,7 @@ export const NewsCardPopup = ({
       isOpen={isModalOpen}
       onClose={handleCloseModal}
       size="xl"
-      className="max-h-[90vh] flex flex-col"
+      className="max-h-[70vh] flex flex-col"
       backdropClassName="bg-black/70"
     >
       <div className="flex-1 overflow-y-auto scrollbar-hide">
