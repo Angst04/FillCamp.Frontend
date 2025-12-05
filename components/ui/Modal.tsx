@@ -90,7 +90,7 @@ export const Modal = ({
           initial="initial"
           animate="animate"
           exit="exit"
-          className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 ${backdropClassName}`}
+          className={`fixed inset-0 z-50 flex items-center justify-center px-4 py-30 bg-black/50 ${backdropClassName}`}
           onClick={handleBackdropClick}
           role="dialog"
           aria-modal="true"
@@ -121,7 +121,7 @@ export const Modal = ({
                 <X size={16} className="text-gray-600" />
               </button>
             )}
-            <div className="p-6">{children}</div>
+            <div className={"p-4 flex flex-col min-h-0"}>{children}</div>
           </motion.div>
         </motion.div>
       )}
