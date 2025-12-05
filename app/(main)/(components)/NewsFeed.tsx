@@ -1,16 +1,13 @@
 "use client";
 
-import NewsCard from "@/components/NewsCard";
 import { motion } from "motion/react";
 import { listContainerVariants } from "@/lib/animations";
 
 export interface NewsPost {
-  id: number;
   title: string;
-  content: string;
-  image?: string;
+  description: string;
   date: string;
-  views: number;
+  image?: string;
 }
 
 interface NewsFeedProps {
@@ -28,17 +25,6 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ news }) => {
       >
         Новости и объявления
       </motion.h2>
-
-      {news.map((post) => (
-        <NewsCard
-          key={post.id}
-          title={post.title}
-          content={post.content}
-          image={post.image}
-          date={post.date}
-          views={post.views}
-        />
-      ))}
     </motion.div>
   );
 };
