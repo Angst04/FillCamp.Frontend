@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { ReactNode } from 'react';
-import { motion } from 'motion/react';
-import { cardVariants } from '@/lib/animations';
+import { ReactNode } from "react";
+import { motion } from "motion/react";
+import { cardVariants } from "@/lib/animations";
 
 interface CardProps {
   children: ReactNode;
   className?: string;
 }
 
-export default function Card({ children, className = '' }: CardProps) {
+export default function Card({ children, className = "" }: CardProps) {
   return (
     <motion.div
       variants={cardVariants}
@@ -22,4 +22,3 @@ export default function Card({ children, className = '' }: CardProps) {
     </motion.div>
   );
 }
-

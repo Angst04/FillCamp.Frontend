@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { Plus, Minus, Trash2 } from 'lucide-react';
-import { motion } from 'motion/react';
-import { listItemVariants, counterVariants } from '@/lib/animations';
+import Image from "next/image";
+import { Plus, Minus, Trash2 } from "lucide-react";
+import { motion } from "motion/react";
+import { listItemVariants, counterVariants } from "@/lib/animations";
 
 interface CartItemProps {
   id: number;
@@ -15,15 +15,7 @@ interface CartItemProps {
   onRemove: (id: number) => void;
 }
 
-export default function CartItem({
-  id,
-  name,
-  price,
-  image,
-  quantity,
-  onUpdateQuantity,
-  onRemove,
-}: CartItemProps) {
+export default function CartItem({ id, name, price, image, quantity, onUpdateQuantity, onRemove }: CartItemProps) {
   return (
     <motion.div
       variants={listItemVariants}
@@ -33,24 +25,12 @@ export default function CartItem({
       whileHover={{ scale: 1.02 }}
       className="bg-white rounded-2xl p-4 shadow-sm flex items-center space-x-4"
     >
-      <motion.div
-        className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded-xl"
-        whileHover={{ scale: 1.1 }}
-      >
-        <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover"
-        />
+      <motion.div className="relative w-20 h-20 flex-shrink-0 overflow-hidden rounded-xl" whileHover={{ scale: 1.1 }}>
+        <Image src={image} alt={name} fill className="object-cover" />
       </motion.div>
       <div className="flex-1">
-        <h3 className="font-semibold text-[#101010]">
-          {name}
-        </h3>
-        <p className="text-sm text-[#656565]">
-          {price} бонусов
-        </p>
+        <h3 className="font-semibold text-[#101010]">{name}</h3>
+        <p className="text-sm text-[#656565]">{price} бонусов</p>
       </div>
       <div className="flex items-center space-x-2">
         <motion.button
@@ -92,4 +72,3 @@ export default function CartItem({
     </motion.div>
   );
 }
-

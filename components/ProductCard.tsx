@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import Image from 'next/image';
-import { Plus } from 'lucide-react';
-import { motion } from 'motion/react';
-import { cardVariants, iconButtonVariants } from '@/lib/animations';
+import Image from "next/image";
+import { Plus } from "lucide-react";
+import { motion } from "motion/react";
+import { cardVariants, iconButtonVariants } from "@/lib/animations";
 
 interface ProductCardProps {
   name: string;
@@ -20,7 +20,7 @@ export default function ProductCard({
   price,
   image,
   onAddToCart,
-  className = '',
+  className = ""
 }: ProductCardProps) {
   return (
     <motion.div
@@ -36,26 +36,13 @@ export default function ProductCard({
         whileHover={{ scale: 1.08 }}
         transition={{ duration: 0.3 }}
       >
-        <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover rounded-t-xl"
-        />
+        <Image src={image} alt={name} fill className="object-cover rounded-t-xl" />
       </motion.div>
       <div className="p-2.5">
-        <h3 className="font-bold text-[#101010] text-base mb-1">
-          {name}
-        </h3>
-        <p className="text-xs text-[#656565] mb-3 line-clamp-2 leading-tight">
-          {description}
-        </p>
+        <h3 className="font-bold text-[#101010] text-base mb-1">{name}</h3>
+        <p className="text-xs text-[#656565] mb-3 line-clamp-2 leading-tight">{description}</p>
         <div className="flex items-center justify-between">
-          <motion.span
-            className="font-semibold text-[#0048F2] text-base"
-            initial={{ scale: 1 }}
-            animate={{ scale: 1 }}
-          >
+          <motion.span className="font-semibold text-[#0048F2] text-base" initial={{ scale: 1 }} animate={{ scale: 1 }}>
             {price}
           </motion.span>
           <motion.button
@@ -74,4 +61,3 @@ export default function ProductCard({
     </motion.div>
   );
 }
-
