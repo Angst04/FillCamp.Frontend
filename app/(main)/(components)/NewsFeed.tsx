@@ -2,19 +2,9 @@
 
 import { motion } from "motion/react";
 import { listContainerVariants } from "@/lib/animations";
+import NewsCard from "@/components/NewsCard";
 
-export interface NewsPost {
-  title: string;
-  description: string;
-  date: string;
-  image?: string;
-}
-
-interface NewsFeedProps {
-  news: NewsPost[];
-}
-
-const NewsFeed: React.FC<NewsFeedProps> = ({ news }) => {
+export const NewsFeed = ({ news }: MainPageProps) => {
   return (
     <motion.div variants={listContainerVariants} initial="initial" animate="animate" className="space-y-4">
       <motion.h2
@@ -25,8 +15,15 @@ const NewsFeed: React.FC<NewsFeedProps> = ({ news }) => {
       >
         Новости и объявления
       </motion.h2>
+      {news.map((post) => (
+        <NewsCard
+          key={post.title}
+          title={post.title}
+          description={post.description}
+          image={post.image}
+          date={post.date}
+        />
+      ))}
     </motion.div>
   );
 };
-
-export default NewsFeed;

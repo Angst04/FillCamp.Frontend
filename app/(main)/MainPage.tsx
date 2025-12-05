@@ -4,10 +4,10 @@ import { useTelegram } from "@/context/TelegramProvider";
 import { motion } from "motion/react";
 import { pageVariants } from "@/lib/animations";
 import PageHeader from "@/components/PageHeader";
-import NewsFeed from "./(components)/NewsFeed";
+import { NewsFeed } from "./(components)/NewsFeed";
 import AboutCampButton from "./(components)/AboutCampButton";
 
-export const MainPage = () => {
+export const MainPage = ({ news }: MainPageProps) => {
   const { user } = useTelegram();
 
   return (
@@ -19,7 +19,7 @@ export const MainPage = () => {
       className="max-w-2xl mx-auto px-4 py-6"
     >
       <PageHeader title={`Привет, ${user?.first_name}!`} description="Добро пожаловать в наше сообщество" emoji="👋" />
-      <NewsFeed news={[]} />
+      <NewsFeed news={news} />
       <AboutCampButton />
     </motion.div>
   );

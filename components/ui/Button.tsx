@@ -22,14 +22,14 @@ const variantStyles: Record<ButtonVariant, string> = {
   icon: "bg-blue-600 text-white hover:bg-blue-700 p-3 rounded-full"
 };
 
-export default function Button({
+export const Button = ({
   children,
   onClick,
   variant = "primary",
   disabled = false,
   className = "",
   type = "button"
-}: ButtonProps) {
+}: ButtonProps) => {
   const baseStyles = "py-4 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed";
   const widthClass = variant === "icon" ? "" : "w-full";
 
@@ -47,4 +47,4 @@ export default function Button({
       {children}
     </motion.button>
   );
-}
+};
