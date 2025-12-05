@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from "react";
+import { isMobile } from "react-device-detect";
 
 interface TelegramContextType {
   user: TelegramUser | null;
@@ -33,6 +34,9 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
   const initTelegram = useCallback(() => {
     const tg = window.Telegram?.WebApp;
     if (tg) {
+      tg.ready();
+      tg.expand();
+      if (isMobile) tg.requestFullscreen();
       setState({
         webApp: tg,
         user: tg.initDataUnsafe?.user ?? MOCK_USER,
