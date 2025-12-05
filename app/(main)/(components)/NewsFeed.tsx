@@ -13,7 +13,7 @@ export const NewsFeed = ({ news }: MainPageProps) => {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
       >
-        Новости и объявления
+        <span className="text-secondary">Новости</span> и <span className="text-primary">объявления</span>
       </motion.h2>
       {news.map((post) => (
         <NewsCard

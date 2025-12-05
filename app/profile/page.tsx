@@ -5,7 +5,7 @@ import { useState } from "react";
 import { User, Phone, Award } from "lucide-react";
 import Card from "@/components/ui/Card";
 import InfoItem from "@/components/InfoItem";
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import RoleToggle from "./(components)/RoleToggle";
 import ProfileHeader from "./(components)/ProfileHeader";
 import StatsCard from "./(components)/StatsCard";

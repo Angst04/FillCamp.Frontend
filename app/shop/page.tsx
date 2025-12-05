@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ShoppingBag, Award } from "lucide-react";
 import { useTelegram } from "@/context/TelegramProvider";
 import ProductCard from "@/components/ProductCard";
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import ShopHeader from "./(components)/ShopHeader";
 import CartButton from "./(components)/CartButton";
 import CartItem from "./(components)/CartItem";

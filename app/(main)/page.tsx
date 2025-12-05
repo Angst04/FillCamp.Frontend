@@ -3,7 +3,7 @@ import { groq } from "next-sanity";
 import { MainPage } from "./MainPage";
 import { Metadata } from "next";
 
-export const revalidate = 600;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Новости FillCamp",
@@ -38,10 +38,9 @@ async function getNewsPageData() {
 export default async function Page() {
   try {
     const newsPageData = await getNewsPageData();
-    console.log(newsPageData.news);
     return <MainPage news={newsPageData.news} />;
   } catch (error) {
     console.error(error);
-    return <div className="text-red-500 text-center text-2xl font-bold">Error loading news</div>;
+    return <div className="text-red-500 text-center text-2xl font-bold">Не удалось загрузить новости</div>;
   }
 }

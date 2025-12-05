@@ -16,10 +16,10 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-  gradient: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg",
-  icon: "bg-blue-600 text-white hover:bg-blue-700 p-3 rounded-full"
+  primary: "bg-[var(--color-primary)] text-white hover:opacity-90",
+  secondary: "bg-[var(--color-secondary)] text-[var(--color-background)] hover:bg-[var(--color-surface-lighter)]",
+  gradient: "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white hover:shadow-lg",
+  icon: "bg-[var(--color-primary)] text-white hover:opacity-90 p-3 rounded-full"
 };
 
 export const Button = ({

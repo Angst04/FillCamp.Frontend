@@ -18,7 +18,7 @@ const AboutCampButton = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
     >
-      <Button onClick={handleLearnMore}>Узнать больше о лагере 🏕️</Button>
+      <Button onClick={handleLearnMore}>Узнать больше о лагере</Button>
     </motion.div>
   );
 };
