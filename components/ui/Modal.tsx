@@ -128,5 +128,9 @@ export const Modal = ({
     </AnimatePresence>
   );
 
+  if (typeof document === "undefined") {
+    return null;
+  }
+
   return createPortal(modalContent, document.body);
 };

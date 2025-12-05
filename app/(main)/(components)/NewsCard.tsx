@@ -16,6 +16,13 @@ export default function NewsCard(props: NewsPost) {
     setIsModalOpen(true);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setIsModalOpen(true);
+    }
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
   };
@@ -33,6 +40,7 @@ export default function NewsCard(props: NewsPost) {
         role="button"
         aria-label={`Read full article: ${title}`}
         onClick={handleCardClick}
+        onKeyDown={handleKeyDown}
       >
         {image && (
           <motion.div
