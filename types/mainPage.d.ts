@@ -3,9 +3,16 @@ declare global {
     news: NewsPost[];
   }
 
+  type CustomTextBlock = PortableTextBlock<
+    PortableTextMarkDefinition,
+    ArbitraryTypedObject | PortableTextSpan,
+    string,
+    string
+  >;
+
   interface NewsPost {
     title: string;
-    description: string;
+    description: CustomTextBlock[];
     image: SanityImage;
     date: string;
   }
@@ -23,6 +30,15 @@ declare global {
       };
     };
     alt: string;
+  }
+
+  interface NewsCardPopupProps {
+    isModalOpen: boolean;
+    handleCloseModal: () => void;
+    image: SanityImage;
+    title: string;
+    date: string;
+    description: CustomTextBlock[];
   }
 }
 export {};

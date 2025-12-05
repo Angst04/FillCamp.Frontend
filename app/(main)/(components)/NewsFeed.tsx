@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import { listContainerVariants } from "@/lib/animations";
-import NewsCard from "@/components/NewsCard";
+import NewsCard from "./NewsCard";
 
 export const NewsFeed = ({ news }: MainPageProps) => {
   return (
