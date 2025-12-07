@@ -17,6 +17,10 @@ const navItems = [
 export default function Navigation() {
   const pathname = usePathname();
 
+  if (pathname === "/login") {
+    return null;
+  }
+
   return (
     <motion.nav
       initial={{ y: 100 }}

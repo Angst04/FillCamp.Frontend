@@ -54,6 +54,9 @@ importers:
       '@tanstack/eslint-plugin-query':
         specifier: ^5.91.2
         version: 5.91.2(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3)
+      '@twa-dev/types':
+        specifier: ^8.0.2
+        version: 8.0.2
       '@types/node':
         specifier: ^20
         version: 20.19.25
