@@ -1,6 +1,5 @@
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
-import Image from "next/image";
 import { motion } from "motion/react";
 import { fadeInVariants } from "@/lib/animations";
 import { useState } from "react";
@@ -8,14 +7,14 @@ import { Minus, PlusIcon } from "lucide-react";
 import { useTelegram } from "@/context/TelegramProvider";
 import { calculateFinalPrice } from "@/lib/utils";
 
-interface MerchModalProps {
+interface LessonModalProps {
   isOpen: boolean;
   handleCloseModal: () => void;
-  merch: Merch;
+  lesson: Lesson;
 }
 
-export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps) => {
-  const { title, price, image } = merch;
+export const LessonModal = ({ isOpen, handleCloseModal, lesson }: LessonModalProps) => {
+  const { title, description, price } = lesson;
   const [quantity, setQuantity] = useState(1);
   const [useBonus, setUseBonus] = useState(false);
   const { webApp } = useTelegram();
@@ -60,24 +59,15 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
       className="max-h-[85vh] flex flex-col"
       backdropClassName="bg-black/70"
     >
-      <motion.div
-        variants={fadeInVariants}
-        initial="initial"
-        animate="animate"
-        className="flex flex-row justify-between"
-      >
-        {/* Product Image */}
-        <div className="relative w-1/2 aspect-square overflow-hidden rounded-2xl bg-gray-100">
-          <Image src={image.asset.url} alt={image.alt || title} fill className="object-cover rounded-2xl" priority />
-        </div>
+      <motion.div variants={fadeInVariants} initial="initial" animate="animate" className="flex flex-col gap-6">
+        {/* Lesson Info */}
+        <div className="flex flex-col gap-4">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{title}</h1>
+          {description && <p className="text-base md:text-lg text-gray-600 leading-relaxed">{description}</p>}
+          <div className="flex flex-row items-center justify-between">
+            <p className="text-2xl md:text-3xl font-bold text-[var(--color-secondary)]">{price} ₽</p>
 
-        {/* Product Info */}
-        <div className="flex flex-col justify-between w-full">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 text-right">{title}</h1>
-          <div className="flex flex-col gap-2">
-            <p className="text-2xl md:text-3xl font-bold text-[var(--color-secondary)] text-right">{price} ₽</p>
-
-            <div className="flex flex-row items-center justify-end gap-4">
+            <div className="flex flex-row items-center gap-4">
               <Button variant="icon" onClick={() => handleQuantityChange(-1)} className="w-15" disabled={isMin}>
                 <Minus size={16} className="mx-auto" />
               </Button>

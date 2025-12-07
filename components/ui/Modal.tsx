@@ -43,6 +43,7 @@ export const Modal = ({
   ariaLabelledBy
 }: ModalProps) => {
   const modalRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isOpen || !closeOnEscape) return;
@@ -71,10 +72,30 @@ export const Modal = ({
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen || !closeOnBackdropClick) return;
+
+    const handleDocumentClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      const contentElement = contentRef.current;
+
+      // Close if click is outside the modal content
+      if (contentElement && !contentElement.contains(target)) {
+        onClose();
+      }
+    };
+
+    // Use capture phase to catch the event before it bubbles
+    document.addEventListener("mousedown", handleDocumentClick, true);
+    return () => {
+      document.removeEventListener("mousedown", handleDocumentClick, true);
+    };
+  }, [isOpen, closeOnBackdropClick, onClose]);
+
   const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (closeOnBackdropClick && event.target === event.currentTarget) {
-      onClose();
-    }
+    // This handler is kept for backward compatibility
+    // The actual backdrop click handling is done via document-level listener
+    event.stopPropagation();
   };
 
   const handleClose = () => {
@@ -96,14 +117,16 @@ export const Modal = ({
           aria-modal="true"
           aria-label={ariaLabel}
           aria-labelledby={ariaLabelledBy}
+          data-modal-backdrop
         >
           <motion.div
+            ref={contentRef}
             variants={modalContentVariants}
             initial="initial"
             animate="animate"
             exit="exit"
             className={`relative bg-white rounded-2xl p-2 shadow-lg w-full ${sizeClasses[size]} ${className}`}
-            onClick={(e) => e.stopPropagation()}
+            data-modal-content
           >
             {showCloseButton && (
               <button
