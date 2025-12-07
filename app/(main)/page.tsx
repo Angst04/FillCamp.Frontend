@@ -12,7 +12,6 @@ export const metadata: Metadata = {
 
 async function getNewsPageData() {
   return await client.fetch(groq`*[_type == "newsPage"][0]{
-    title, 
     "news": news[] { 
       title, 
       description, 
