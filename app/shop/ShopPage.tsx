@@ -1,23 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ShoppingBag, Award } from "lucide-react";
-import { useTelegram } from "@/context/TelegramProvider";
 import { Button } from "@/components/ui/Button";
 import ShopHeader from "./(components)/ShopHeader";
-import CartButton from "./(components)/CartButton";
-import CartItem from "./(components)/CartItem";
-import CartSummary from "./(components)/CartSummary";
-import { motion, AnimatePresence } from "motion/react";
-import { pageVariants, listContainerVariants, slideInFromRight } from "@/lib/animations";
+import { motion } from "motion/react";
+import { pageVariants, listContainerVariants } from "@/lib/animations";
 import { MerchCard } from "./(components)/MerchCard";
 import { LessonCard } from "./(components)/LessonCard";
 import { ProgrammCard } from "./(components)/ProgrammCard";
+import { Award } from "lucide-react";
 
 export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
   const [category, setCatery] = useState<Category>("merch");
 
-  console.log(programms);
   return (
     <motion.div
       variants={pageVariants}

@@ -6,6 +6,7 @@ import { fadeInVariants } from "@/lib/animations";
 import { useState } from "react";
 import { Minus, PlusIcon } from "lucide-react";
 import { useTelegram } from "@/context/TelegramProvider";
+import { calculateFinalPrice } from "@/lib/utils";
 
 interface MerchModalProps {
   isOpen: boolean;
@@ -18,6 +19,8 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
   const [quantity, setQuantity] = useState(1);
   const [useBonus, setUseBonus] = useState(false);
   const { webApp } = useTelegram();
+
+  const BONUS_POINTS = 999;
 
   const purchase = async () => {
     if (webApp) {
@@ -36,6 +39,12 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
 
   const isMax = quantity >= 10;
   const isMin = quantity <= 1;
+  const finalPrice = calculateFinalPrice({
+    price,
+    quantity,
+    bonusPoints: BONUS_POINTS,
+    useBonus
+  });
 
   return (
     <Modal
@@ -87,12 +96,14 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
               checked={useBonus}
               onChange={() => setUseBonus(!useBonus)}
             />
-            <span className="text-base font-medium text-gray-700 select-none">Использовать баллы? ({999})</span>
+            <span className="text-base font-medium text-gray-700 select-none">
+              Использовать баллы? ({BONUS_POINTS})
+            </span>
           </label>
         </div>
         <div className="text-right p-4">
           <span className="text-2xl font-bold text-[var(--color-secondary)]">
-            Итого: <span className="text-3xl">{useBonus ? price * quantity - 999 : price * quantity} ₽</span>
+            Итого: <span className="text-3xl">{finalPrice} ₽</span>
           </span>
         </div>
         <Button variant="primary" onClick={purchase}>
