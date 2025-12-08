@@ -32,6 +32,7 @@ export default async function RootLayout({
         style={{
           marginTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
         }}
+        suppressHydrationWarning
         className={`${inter.variable} antialiased`}
       >
         <QueryProvider>

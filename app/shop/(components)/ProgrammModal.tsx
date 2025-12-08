@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/Button";
 import { motion } from "motion/react";
 import { fadeInVariants } from "@/lib/animations";
 import { useState } from "react";
-import { Minus, PlusIcon } from "lucide-react";
 import { useTelegram } from "@/context/TelegramProvider";
 import { calculateFinalPrice } from "@/lib/utils";
 import { CustomPortableText } from "@/components/CustomPortableText";
@@ -18,7 +17,6 @@ type TransferType = "both-ways" | "one-way" | "no";
 
 export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammModalProps) => {
   const { season, place, lang, description, shifts, prepaymentPrice, transferPrice } = programm;
-  const [quantity, setQuantity] = useState(1);
   const [useBonus, setUseBonus] = useState(false);
   const [selectedShiftIndex, setSelectedShiftIndex] = useState(0);
   const [paymentType, setPaymentType] = useState<"prepayment" | "full">("full");
@@ -36,7 +34,6 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const totalPrice = (paymentType === "prepayment" ? prepaymentPrice : basePrice) + transferCost;
 
   const purchase = async () => {
-    setQuantity(1);
     setUseBonus(false);
     setSelectedShiftIndex(0);
     setPaymentType("prepayment");
@@ -49,18 +46,9 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
     }
   };
 
-  const handleQuantityChange = (delta: number) => {
-    if (quantity + delta < 1) return;
-    if (quantity + delta > 10) return;
-    setQuantity(quantity + delta);
-  };
-
-  const isMax = quantity >= 10;
-  const isMin = quantity <= 1;
-
   const finalPrice = calculateFinalPrice({
     price: totalPrice,
-    quantity,
+    quantity: 1,
     bonusPoints: BONUS_POINTS,
     useBonus
   });
@@ -72,7 +60,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
       isOpen={isOpen}
       onClose={handleCloseModal}
       size="xl"
-      className="max-h-[85vh] flex flex-col overflow-y-auto scrollbar-hide"
+      className="max-h-[70vh] flex flex-col overflow-y-auto scrollbar-hide"
       backdropClassName="bg-black/70"
     >
       <motion.div variants={fadeInVariants} initial="initial" animate="animate" className="flex flex-col gap-6">
@@ -80,7 +68,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{`${season}. ${place}. ${lang}`}</h1>
           {description && (
-            <div className="text-base md:text-lg text-gray-600 leading-relaxed">
+            <div className="text-base md:text-lg leading-relaxed">
               <CustomPortableText content={description} />
             </div>
           )}
@@ -155,24 +143,6 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
               <option value="one-way">До {programm.place}</option>
               <option value="no">Без трансфера</option>
             </select>
-          </div>
-
-          {/* Price and Quantity */}
-          <div className="flex flex-row items-center justify-between pt-2">
-            <div className="flex flex-col">
-              <p className="text-lg text-gray-600">Базовая цена</p>
-              <p className="text-2xl md:text-3xl font-bold text-[var(--color-secondary)]">{totalPrice} ₽</p>
-            </div>
-
-            <div className="flex flex-row items-center gap-4">
-              <Button variant="icon" onClick={() => handleQuantityChange(-1)} className="w-15" disabled={isMin}>
-                <Minus size={16} className="mx-auto" />
-              </Button>
-              <span className="text-2xl md:text-3xl font-bold text-[var(--color-secondary)]">{quantity}</span>
-              <Button variant="icon" onClick={() => handleQuantityChange(1)} className="w-15" disabled={isMax}>
-                <PlusIcon size={16} className="mx-auto" />
-              </Button>
-            </div>
           </div>
         </div>
       </motion.div>
