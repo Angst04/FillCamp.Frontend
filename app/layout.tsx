@@ -29,7 +29,9 @@ export default async function RootLayout({
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
         <QueryProvider>
           <TelegramProvider>
-            <div className="min-h-screen pb-16">{children}</div>
+            <div className="min-h-screen pb-16" style={{ paddingTop: "calc(var(--twa-status-bar-height) + 20px)" }}>
+              {children}
+            </div>
             <Navigation />
           </TelegramProvider>
         </QueryProvider>
