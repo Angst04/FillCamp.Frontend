@@ -13,6 +13,7 @@ import ChildInfoCard from "./(components)/ChildInfoCard";
 import ParentInfoCard from "./(components)/ParentInfoCard";
 import { motion, AnimatePresence } from "motion/react";
 import { pageVariants, fadeInVariants } from "@/lib/animations";
+import { useRouter } from "next/navigation";
 
 type UserRole = "child" | "parent";
 
@@ -39,7 +40,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const { user, webApp } = useTelegram();
-
+  const router = useRouter();
   // Mock profile data (in real app would be loaded from API)
   const [profile] = useState<UserProfile>({
     id: user?.id || 123456789,
@@ -66,13 +67,20 @@ export default function ProfilePage() {
 
   const [selectedRole, setSelectedRole] = useState<UserRole>(profile.role);
 
-  const handleLogout = () => {
-    webApp?.showConfirm("Вы уверены, что хотите выйти?", (confirmed: boolean) => {
-      if (confirmed) {
-        // Logout logic
-        console.log("Logout");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/logOut", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        }
+      });
+      if (response.ok) {
+        router.push("/login");
       }
-    });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (

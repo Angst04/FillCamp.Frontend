@@ -45,22 +45,7 @@ export const LoginPage = () => {
   };
 
   return (
-    <motion.div
-      variants={fadeInVariants}
-      initial="initial"
-      animate="animate"
-      className="min-h-screen bg-[#F0F0E9] flex flex-col items-center px-5 pb-24"
-    >
-      {/* Logo */}
-      <motion.div
-        variants={cardVariants}
-        initial="initial"
-        animate="animate"
-        className="mt-12 mb-16 w-full max-w-[345px] aspect-[345/173] relative"
-      >
-        <Image src={Logo} alt="FillCamp Logo" fill className="object-contain" priority />
-      </motion.div>
-
+    <>
       {/* Authorization Section */}
       <motion.div
         variants={cardVariants}
@@ -80,6 +65,6 @@ export const LoginPage = () => {
           <span>Поделиться</span>
         </Button>
       </motion.div>
-    </motion.div>
+    </>
   );
 };

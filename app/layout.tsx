@@ -24,17 +24,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
-      <head>
+    <html lang="ru" suppressHydrationWarning>
+      <body className={`${inter.variable} antialiased`}>
         <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
-      </head>
-      <body
-        style={{
-          marginTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
-        }}
-        suppressHydrationWarning
-        className={`${inter.variable} antialiased`}
-      >
         <QueryProvider>
           <TelegramProvider>
             <div className="min-h-screen pb-16">{children}</div>
