@@ -1,16 +1,8 @@
 import Card from "@/components/ui/Card";
 import UserListItem from "@/components/UserListItem";
 
-interface Referral {
-  id: number;
-  name: string;
-  username?: string;
-  joinedDate: string;
-  bonusEarned: number;
-}
-
 interface FriendsListProps {
-  referrals: Referral[];
+  referrals: InvitedUser[];
 }
 
 export default function FriendsList({ referrals }: FriendsListProps) {
@@ -27,14 +19,13 @@ export default function FriendsList({ referrals }: FriendsListProps) {
       <div className="space-y-3">
         {referrals.map((referral) => (
           <UserListItem
-            key={referral.id}
-            name={referral.name}
-            username={referral.username}
+            key={referral.tg_id}
+            name={referral.full_name}
             avatarGradient="from-purple-500 to-blue-600"
             rightContent={
               <>
-                <p className="font-semibold text-[#408D26] text-sm">+{referral.bonusEarned}</p>
-                <p className="text-xs text-[#656565]">{new Date(referral.joinedDate).toLocaleDateString("ru-RU")}</p>
+                <p className="font-semibold text-[#408D26] text-sm">+{100}</p>
+                <p className="text-xs text-[#656565]">{new Date(referral.date).toLocaleDateString("ru-RU")}</p>
               </>
             }
           />
