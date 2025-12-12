@@ -1,32 +1,43 @@
 "use client";
-
-import Image from "next/image";
 import { motion } from "motion/react";
 import { Button } from "@/components/ui/Button";
-import { fadeInVariants, cardVariants } from "@/lib/animations";
+import { cardVariants } from "@/lib/animations";
 import { Phone } from "lucide-react";
 import { useTelegram } from "@/context/TelegramProvider";
 import { RequestContactResponse } from "@twa-dev/types";
 import { useRouter } from "next/navigation";
-import Logo from "@/public/logo.png";
+import { usePostUserMutations } from "@/api/hooks/user/usePostUserMutations";
 
 export const LoginPage = () => {
+  const { mutateAsync: postUser } = usePostUserMutations();
   const { webApp } = useTelegram();
   const router = useRouter();
   const handleContinue = async () => {
     try {
       webApp?.requestContact(async (access: boolean, response?: RequestContactResponse) => {
-        if (response && response.status === "sent") {
-          const phoneNumber = response.responseUnsafe.contact.phone_number?.toString();
+        if (response?.status === "sent") {
+          const phoneNumber = response.responseUnsafe.contact.phone_number;
           const setCookieResponse = await fetch("/api/logIn", {
             method: "POST",
             headers: {
-              "Content-Type": "application/json"
+              "Content-Type": "application/json",
+              "X-Telegram-Id": webApp?.initDataUnsafe.user?.id?.toString() ?? "1"
             },
             body: JSON.stringify({ phoneNumber: phoneNumber })
           });
           if (setCookieResponse.ok) {
-            router.push("/");
+            const user = await postUser({
+              params: {
+                telegram_id: response.responseUnsafe.contact.user_id ?? 1,
+                first_name: response.responseUnsafe.contact.first_name ?? "",
+                last_name: response.responseUnsafe.contact.last_name ?? "",
+                username: webApp?.initDataUnsafe.user?.username ?? "",
+                phone_number: phoneNumber
+              }
+            });
+            if (user.success) {
+              router.push("/");
+            }
           }
         }
       });
@@ -39,7 +50,18 @@ export const LoginPage = () => {
         body: JSON.stringify({ phoneNumber: "+79999999999" })
       });
       if (setCookieResponse.ok) {
-        router.push("/");
+        const user = await postUser({
+          params: {
+            telegram_id: webApp?.initDataUnsafe.user?.id ?? 1,
+            first_name: webApp?.initDataUnsafe.user?.first_name ?? "",
+            last_name: webApp?.initDataUnsafe.user?.last_name ?? "",
+            username: webApp?.initDataUnsafe.user?.username ?? "",
+            phone_number: "+79999999999"
+          }
+        });
+        if (user.success) {
+          router.push("/");
+        }
       }
     }
   };

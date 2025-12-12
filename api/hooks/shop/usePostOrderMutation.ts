@@ -12,7 +12,7 @@ export const usePostOrderMutation = () => {
           ...config,
           headers: {
             ...config?.headers,
-            "X-Telegram-Id": webApp?.initDataUnsafe.user?.id?.toString() ?? ""
+            "X-Telegram-Id": webApp?.initDataUnsafe.user?.id?.toString() ?? "1"
           }
         }
       })
