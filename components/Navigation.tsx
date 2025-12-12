@@ -5,10 +5,12 @@ import { usePathname } from "next/navigation";
 import { Home, User, Gamepad2, ShoppingCart, Users } from "lucide-react";
 import { motion } from "motion/react";
 import { navItemVariants, navIconVariants, spring } from "@/lib/animations";
+import { useAuth } from "@/hooks/useAuth";
+import { useMemo } from "react";
 
-const navItems = [
+const allNavItems = [
   { href: "/", label: "Новости", icon: Home },
-  { href: "/game", label: "Игра", icon: Gamepad2 },
+  { href: "/game", label: "Игра", icon: Gamepad2, hideForRoles: ["parent"] },
   { href: "/shop", label: "Магазин", icon: ShoppingCart },
   { href: "/referrals", label: "Друзья", icon: Users },
   { href: "/profile", label: "Профиль", icon: User }
@@ -16,13 +18,27 @@ const navItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
+  const { data: authData } = useAuth();
+
+  const navItems = useMemo(() => {
+    if (!authData?.role) return allNavItems;
+
+    return allNavItems.filter((item) => {
+      if (!item.hideForRoles) return true;
+      return !item.hideForRoles.includes(authData?.role ?? "");
+    });
+  }, [authData?.role]);
+
+  if (pathname === "/login") {
+    return null;
+  }
 
   return (
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
       transition={spring}
-      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-3"
+      className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 pb-6"
     >
       <div className="flex justify-around items-center h-16 max-w-md mx-auto px-2">
         {navItems.map(({ href, label, icon: Icon }) => {

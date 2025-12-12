@@ -71,7 +71,7 @@ export class HttpClient {
 
     const config: RequestInit = {
       method,
-      credentials: "include",
+      // credentials: "include",
       headers,
       next: {
         revalidate: 60 * 60 // 1 hour
@@ -165,5 +165,5 @@ export class HttpClient {
   }
 }
 
-const baseUrl = process.env.API_BASE_URL || "http://localhost:8000/api";
+const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 export const api = new HttpClient(baseUrl);

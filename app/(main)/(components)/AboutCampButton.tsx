@@ -1,16 +1,15 @@
 "use client";
 
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 import { motion } from "motion/react";
+import { useTelegram } from "@/context/TelegramProvider";
+import { useCallback } from "react";
 
-interface AboutCampButtonProps {
-  url?: string;
-}
-
-const AboutCampButton: React.FC<AboutCampButtonProps> = ({ url = "https://your-camp-website.com" }) => {
-  const handleLearnMore = () => {
-    window.open(url, "_blank");
-  };
+const AboutCampButton = () => {
+  const { webApp } = useTelegram();
+  const handleLearnMore = useCallback(() => {
+    webApp?.openLink("https://fillcamp.ru/about_us");
+  }, [webApp]);
 
   return (
     <motion.div
@@ -19,7 +18,7 @@ const AboutCampButton: React.FC<AboutCampButtonProps> = ({ url = "https://your-c
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.4 }}
     >
-      <Button onClick={handleLearnMore}>Узнать больше о лагере 🏕️</Button>
+      <Button onClick={handleLearnMore}>Узнать больше о лагере</Button>
     </motion.div>
   );
 };

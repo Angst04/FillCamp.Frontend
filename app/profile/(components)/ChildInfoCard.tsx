@@ -1,31 +1,30 @@
 import { Users } from "lucide-react";
-
-interface LinkedAccount {
-  id: number;
-  name: string;
-}
+import Card from "@/components/ui/Card";
 
 interface ChildInfoCardProps {
-  linkedAccount?: LinkedAccount;
+  parentInfo: LinkedParentInfo | null;
 }
 
-export default function ChildInfoCard({ linkedAccount }: ChildInfoCardProps) {
-  if (!linkedAccount) return null;
+export default function ChildInfoCard({ parentInfo }: ChildInfoCardProps) {
+  if (!parentInfo) return null;
+
+  const parentName = [parentInfo.first_name, parentInfo.last_name]
+    .filter(Boolean)
+    .join(" ") || "Родитель";
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm p-6">
+    <Card>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-pink-300 rounded-full flex items-center justify-center flex-shrink-0">
-            <Users size={20} className="text-white" />
+          <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <Users size={20} className="text-purple-600" />
           </div>
           <div>
-            <p className="text-sm font-normal">{linkedAccount.name}</p>
-            <p className="text-xs text-gray-500">ID: {linkedAccount.id}</p>
+            <p className="text-sm font-medium">{parentName}</p>
+            <p className="text-xs text-gray-500">Telegram ID: {parentInfo.telegram_id}</p>
           </div>
         </div>
-        <button className="text-sm text-blue-600 font-normal">Подробнее</button>
       </div>
-    </div>
+    </Card>
   );
 }

@@ -257,6 +257,13 @@ export const slideInFromBottom: Variants = {
   }
 };
 
+// ==================== MODAL ANIMATIONS ====================
+export const modalContentVariants = {
+  initial: { opacity: 0, scale: 0.95, y: 20 },
+  animate: { opacity: 1, scale: 1, y: 0, transition: smoothSpring },
+  exit: { opacity: 0, scale: 0.95, y: 20, transition: { duration: 0.2 } }
+};
+
 // ==================== UTILITY FUNCTIONS ====================
 export const getStaggerDelay = (index: number, baseDelay = 0.05): number => {
   return index * baseDelay;

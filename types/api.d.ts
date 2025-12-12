@@ -29,6 +29,18 @@ declare global {
     data?: T;
     error?: ErrorDetail | ValidationErrorDetail;
   }
+
+  interface GameStateResponse {
+    new_bonus_balance: number;
+    current_energy: number;
+  }
+
+  type RequestConfig = {
+    config?: {
+      headers?: Record<string, string>;
+      params?: SearchParams;
+    };
+  };
 }
 
 export {};

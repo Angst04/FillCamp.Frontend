@@ -1,6 +1,6 @@
 import { Copy, Share2 } from "lucide-react";
 import Card from "@/components/ui/Card";
-import Button from "@/components/ui/Button";
+import { Button } from "@/components/ui/Button";
 
 interface ReferralLinkCardProps {
   referralLink: string;

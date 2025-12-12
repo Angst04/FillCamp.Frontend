@@ -41,7 +41,7 @@ export default function EnergyDisplay({ energy, maxEnergy }: EnergyDisplayProps)
       </div>
 
       <p className="text-sm font-heading text-center" style={{ color: "#656565" }}>
-        Энергия восстанавливается автоматически
+        Энергия восстанавливается раз в день
       </p>
     </div>
   );

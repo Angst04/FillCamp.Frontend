@@ -18,11 +18,15 @@ function getQueryClient() {
   if (isServer) {
     return makeQueryClient();
   } else {
-    if (!browserQueryClient) browserQueryClient = makeQueryClient();
+    // Lazily initialize the browser query client
+    if (!browserQueryClient) {
+      browserQueryClient = makeQueryClient();
+    }
     return browserQueryClient;
   }
 }
 
 export const QueryProvider = ({ children }: { children: React.ReactNode }) => {
-  return <QueryClientProvider client={getQueryClient()}>{children}</QueryClientProvider>;
+  const queryClient = getQueryClient();
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 };

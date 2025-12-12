@@ -16,20 +16,21 @@ interface ButtonProps {
 }
 
 const variantStyles: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-gray-100 text-gray-700 hover:bg-gray-200",
-  gradient: "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg",
-  icon: "bg-blue-600 text-white hover:bg-blue-700 p-3 rounded-full"
+  primary: "bg-[var(--color-primary)] text-white hover:opacity-90 hover:shadow-lg",
+  secondary: "bg-[var(--color-secondary)] text-[var(--color-background)] hover:opacity-90 hover:shadow-lg",
+  gradient:
+    "bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] text-white  hover:opacity-90 hover:shadow-lg",
+  icon: "bg-transparent border border-black text-black hover:opacity-90 p-3 rounded-full"
 };
 
-export default function Button({
+export const Button = ({
   children,
   onClick,
   variant = "primary",
   disabled = false,
   className = "",
   type = "button"
-}: ButtonProps) {
+}: ButtonProps) => {
   const baseStyles = "py-4 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed";
   const widthClass = variant === "icon" ? "" : "w-full";
 
@@ -47,4 +48,4 @@ export default function Button({
       {children}
     </motion.button>
   );
-}
+};

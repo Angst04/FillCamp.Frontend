@@ -55,3 +55,20 @@ export function truncate(str: string, length: number): string {
 export function isValidTelegramId(id: number): boolean {
   return id > 0 && Number.isInteger(id);
 }
+
+// Расчет итоговой цены с учетом бонусных баллов
+export function calculateFinalPrice(params: {
+  price: number;
+  quantity: number;
+  bonusPoints: number;
+  useBonus: boolean;
+}): number {
+  const { price, quantity, bonusPoints, useBonus } = params;
+  const totalPrice = price * quantity;
+
+  if (!useBonus) {
+    return totalPrice;
+  }
+
+  return Math.max(0, totalPrice - bonusPoints);
+}

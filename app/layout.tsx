@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { TelegramProvider } from "@/context/TelegramProvider";
-import Navigation from "@/components/Navigation";
 import Script from "next/script";
 import { QueryProvider } from "@/context/QueryProvider";
+import Navigation from "@/components/Navigation";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -18,25 +18,23 @@ export const metadata: Metadata = {
   description: "Telegram Mini App для лагеря"
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
-      <head>
-        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
-      </head>
-      <body
-        style={{
-          marginTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
-        }}
-        className={`${inter.variable} antialiased`}
-      >
+      <body className={`${inter.variable} antialiased`}>
+        <Script src="/telegram-web-app.js" strategy="beforeInteractive" />
         <QueryProvider>
           <TelegramProvider>
-            <div className="min-h-screen pb-16">{children}</div>
+            <div
+              className="min-h-screen pb-16"
+              style={{ paddingTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)" }}
+            >
+              {children}
+            </div>
             <Navigation />
           </TelegramProvider>
         </QueryProvider>
