@@ -16,7 +16,9 @@ const nextConfig: NextConfig = {
         destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`
       }
     ];
-  }
+  },
+  // Enable standalone output for Docker
+  output: "standalone"
 };
 
 export default nextConfig;
