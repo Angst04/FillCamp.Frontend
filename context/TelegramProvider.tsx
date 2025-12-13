@@ -71,12 +71,32 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
       tg.expand();
       if (isMobileDevice()) tg.requestFullscreen();
 
-      // Use real Telegram user if available, otherwise fetch from cookies
-      const user = tg.initDataUnsafe?.user ?? (await getMockUserFromCookies());
+      // Use real Telegram user if available
+      // Only use mock data if we're NOT in Telegram (for development)
+      const realUser = tg.initDataUnsafe?.user;
+      let user: TelegramUser | null = null;
+
+      if (realUser) {
+        // We have real Telegram user data
+        user = realUser;
+      } else {
+        // We're in Telegram but user data is not available
+        // This can happen if user is not authenticated or data is still loading
+        // Don't use mock data here - return null instead
+        user = null;
+      }
 
       setState({
         webApp: tg,
         user,
+        isReady: true
+      });
+    } else {
+      // Not in Telegram WebApp - use mock data for development
+      const mockUser = await getMockUserFromCookies();
+      setState({
+        webApp: null,
+        user: mockUser,
         isReady: true
       });
     }
