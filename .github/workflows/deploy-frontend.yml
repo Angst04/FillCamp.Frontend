@@ -82,6 +82,9 @@ jobs:
           # Ensure .next directory exists in deploy-build (create if it doesn't exist from standalone)
           mkdir -p deploy-build/.next
 
+          # Create cache directory for Next.js prerender cache
+          mkdir -p deploy-build/.next/cache
+
           # Copy static files to the .next directory (required for Next.js)
           echo "Copying static files..."
           cp -r .next/static deploy-build/.next/static
