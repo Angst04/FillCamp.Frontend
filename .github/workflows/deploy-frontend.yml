@@ -22,7 +22,7 @@ jobs:
             - name: Setup pnpm
               uses: pnpm/action-setup@v2
               with:
-                  version: 8
+                  version: 9
 
             - name: Get pnpm store directory
               id: pnpm-cache
@@ -92,9 +92,9 @@ jobs:
                       tar -xzf /tmp/frontend-build.tar.gz -C /root/frontend-build
                       rm /tmp/frontend-build.tar.gz
 
-                      # Restart nginx to pick up new files
+                      # Restart frontend service to pick up new build
                       cd /root
-                      docker-compose restart nginx
+                      docker-compose restart frontend
 
                       # Keep only last 3 backups
                       ls -dt /root/frontend-build.backup.* | tail -n +4 | xargs -r rm -rf
@@ -109,6 +109,14 @@ jobs:
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   port: ${{ secrets.SSH_PORT || 22 }}
                   script: |
+                      # Check if frontend service is running
+                      if docker ps | grep -q fillcamp-frontend; then
+                        echo "✅ Frontend service is running"
+                      else
+                        echo "❌ Frontend service is not running"
+                        exit 1
+                      fi
+
                       # Check if nginx is running
                       if docker ps | grep -q fillcamp-nginx; then
                         echo "✅ Nginx is running"
@@ -117,12 +125,22 @@ jobs:
                         exit 1
                       fi
 
-                      # Check if files exist
-                      if [ -f /root/frontend-build/index.html ]; then
-                        echo "✅ Frontend files deployed successfully"
+                      # Check if build files exist
+                      if [ -f /root/frontend-build/server.js ]; then
+                        echo "✅ Frontend build files deployed successfully"
                       else
-                        echo "❌ Frontend files not found"
+                        echo "❌ Frontend build files not found"
                         exit 1
+                      fi
+
+                      # Wait a bit for frontend to be ready
+                      sleep 5
+
+                      # Check if frontend is responding
+                      if docker exec fillcamp-frontend wget --quiet --tries=1 --spider http://localhost:3000/api/health 2>/dev/null || docker exec fillcamp-frontend wget --quiet --tries=1 --spider http://localhost:3000/ 2>/dev/null; then
+                        echo "✅ Frontend is responding"
+                      else
+                        echo "⚠️ Frontend health check failed, but service is running"
                       fi
 
             - name: Notify on success

@@ -9,14 +9,8 @@ const nextConfig: NextConfig = {
       }
     ]
   },
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${process.env.NEXT_PUBLIC_API_BASE_URL}/:path*`
-      }
-    ];
-  },
+  // No rewrites needed - nginx handles /api/v1/* routing to backend
+  // Next.js API routes in /app/api/* are handled by Next.js server
   // Enable standalone output for Docker
   output: "standalone"
 };
