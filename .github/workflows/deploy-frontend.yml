@@ -56,17 +56,41 @@ jobs:
                   # Create a clean build directory
                   mkdir -p deploy-build
 
-                  # Copy necessary files for standalone deployment
+                  # Copy all files from standalone output (this includes server.js and .next directory)
                   cp -r .next/standalone/* deploy-build/
                   
-                  # Ensure .next directory exists before copying static files
-                  mkdir -p deploy-build/.next
-                  cp -r .next/static deploy-build/.next/static
+                  # Copy static files to the .next directory in standalone output
+                  # The standalone output already has a .next directory, we need to add static to it
+                  if [ -d deploy-build/.next ]; then
+                    cp -r .next/static deploy-build/.next/static
+                  else
+                    echo "⚠️ Warning: .next directory not found in standalone, creating it"
+                    mkdir -p deploy-build/.next
+                    cp -r .next/static deploy-build/.next/static
+                  fi
                   
                   # Copy public files if they don't already exist
                   if [ ! -d deploy-build/public ]; then
                     cp -r public deploy-build/public
                   fi
+
+                  # Verify critical files exist
+                  if [ ! -f deploy-build/server.js ]; then
+                    echo "❌ Error: server.js not found in standalone build"
+                    exit 1
+                  fi
+                  
+                  if [ ! -f deploy-build/.next/BUILD_ID ]; then
+                    echo "❌ Error: BUILD_ID not found. Checking standalone structure..."
+                    ls -la deploy-build/
+                    ls -la deploy-build/.next/ 2>/dev/null || echo ".next directory not found"
+                    exit 1
+                  fi
+                  
+                  echo "✅ Build structure verified:"
+                  echo "  - server.js: $(test -f deploy-build/server.js && echo 'found' || echo 'missing')"
+                  echo "  - BUILD_ID: $(test -f deploy-build/.next/BUILD_ID && echo 'found' || echo 'missing')"
+                  echo "  - static files: $(test -d deploy-build/.next/static && echo 'found' || echo 'missing')"
 
                   # Create tarball
                   tar -czf frontend-build.tar.gz -C deploy-build .
@@ -144,8 +168,10 @@ jobs:
                       sleep 5
 
                       # Check if frontend is responding
-                      if docker exec fillcamp-frontend wget --quiet --tries=1 --spider http://localhost:3000/api/health 2>/dev/null || docker exec fillcamp-frontend wget --quiet --tries=1 --spider http://localhost:3000/ 2>/dev/null; then
+                      if docker exec fillcamp-frontend node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))" 2>/dev/null; then
                         echo "✅ Frontend is responding"
+                      elif docker exec fillcamp-frontend node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))" 2>/dev/null; then
+                        echo "✅ Frontend is responding (root endpoint)"
                       else
                         echo "⚠️ Frontend health check failed, but service is running"
                       fi
