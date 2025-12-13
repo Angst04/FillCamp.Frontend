@@ -1,0 +1,136 @@
+name: Deploy Frontend
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v2
+              with:
+                  version: 8
+
+            - name: Get pnpm store directory
+              id: pnpm-cache
+              shell: bash
+              run: |
+                  echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+            - name: Setup pnpm cache
+              uses: actions/cache@v3
+              with:
+                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  restore-keys: |
+                      ${{ runner.os }}-pnpm-store-
+
+            - name: Create production environment file
+              run: |
+                  cat > .env.production << EOF
+                  NODE_ENV=production
+                  NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+                  EOF
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build Next.js application
+              run: pnpm run build
+
+            - name: Create deployment archive
+              run: |
+                  # Create a clean build directory
+                  mkdir -p deploy-build
+
+                  # Copy necessary files for standalone deployment
+                  cp -r .next/standalone/* deploy-build/
+                  cp -r .next/static deploy-build/.next/static
+                  cp -r public deploy-build/public
+
+                  # Create tarball
+                  tar -czf frontend-build.tar.gz -C deploy-build .
+
+            - name: Deploy to server via SSH
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.SSH_PORT || 22 }}
+                  source: "frontend-build.tar.gz"
+                  target: "/tmp/"
+
+            - name: Extract and setup on server
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.SSH_PORT || 22 }}
+                  script: |
+                      # Create backup of current build
+                      if [ -d /root/frontend-build ]; then
+                        mv /root/frontend-build /root/frontend-build.backup.$(date +%Y%m%d_%H%M%S)
+                      fi
+
+                      # Extract new build
+                      mkdir -p /root/frontend-build
+                      tar -xzf /tmp/frontend-build.tar.gz -C /root/frontend-build
+                      rm /tmp/frontend-build.tar.gz
+
+                      # Restart nginx to pick up new files
+                      cd /root
+                      docker-compose restart nginx
+
+                      # Keep only last 3 backups
+                      ls -dt /root/frontend-build.backup.* | tail -n +4 | xargs -r rm -rf
+
+                      echo "✅ Frontend deployment completed successfully!"
+
+            - name: Verify deployment
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.SSH_HOST }}
+                  username: ${{ secrets.SSH_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: ${{ secrets.SSH_PORT || 22 }}
+                  script: |
+                      # Check if nginx is running
+                      if docker ps | grep -q fillcamp-nginx; then
+                        echo "✅ Nginx is running"
+                      else
+                        echo "❌ Nginx is not running"
+                        exit 1
+                      fi
+
+                      # Check if files exist
+                      if [ -f /root/frontend-build/index.html ]; then
+                        echo "✅ Frontend files deployed successfully"
+                      else
+                        echo "❌ Frontend files not found"
+                        exit 1
+                      fi
+
+            - name: Notify on success
+              if: success()
+              run: |
+                  echo "🎉 Frontend deployed successfully!"
+
+            - name: Notify on failure
+              if: failure()
+              run: |
+                  echo "❌ Deployment failed. Check the logs above."
