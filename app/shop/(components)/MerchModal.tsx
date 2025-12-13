@@ -29,6 +29,17 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
   const bonusBalance = profile?.data?.bonus_balance ?? 0;
 
   const purchase = async () => {
+    // Проверка на количество бонусов при покупке с бонусами
+    if (useBonus && bonusBalance === 0) {
+      if (webApp) {
+        webApp.showPopup({
+          title: "Ошибка",
+          message: "У вас недостаточно бонусов для покупки с использованием баллов"
+        });
+      }
+      return;
+    }
+
     const finalTotal = calculateFinalPrice({
       price,
       quantity,
@@ -63,6 +74,7 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
           setQuantity(1);
           setUseBonus(false);
           handleCloseModal();
+          // Показываем успех только после ответа сервера
           if (webApp) {
             webApp.showPopup({
               title: "Успех! 🎉",
@@ -71,10 +83,12 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
           }
         },
         onError: (error: any) => {
+          // Правильная обработка ошибок сервера
+          const errorMessage = error?.error?.detail || error?.message || "Не удалось совершить покупку. Попробуйте еще раз.";
           if (webApp) {
             webApp.showPopup({
               title: "Ошибка",
-              message: error?.response?.data?.detail || "Не удалось совершить покупку. Попробуйте еще раз."
+              message: errorMessage
             });
           }
         }

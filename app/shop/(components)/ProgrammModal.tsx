@@ -40,6 +40,17 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const totalPrice = (paymentType === "prepayment" ? prepaymentPrice : basePrice) + transferCost;
 
   const purchase = async () => {
+    // Проверка на количество бонусов при покупке с бонусами
+    if (useBonus && bonusBalance === 0) {
+      if (webApp) {
+        webApp.showPopup({
+          title: "Ошибка",
+          message: "У вас недостаточно бонусов для покупки с использованием баллов"
+        });
+      }
+      return;
+    }
+
     const finalTotal = calculateFinalPrice({
       price: totalPrice,
       quantity: 1,
@@ -80,6 +91,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
           setPaymentType("full");
           setTransfer("no");
           handleCloseModal();
+          // Показываем успех только после ответа сервера
           if (webApp) {
             webApp.showPopup({
               title: "Успех! 🎉",
@@ -88,10 +100,12 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
           }
         },
         onError: (error: any) => {
+          // Правильная обработка ошибок сервера
+          const errorMessage = error?.error?.detail || error?.message || "Не удалось совершить покупку. Попробуйте еще раз.";
           if (webApp) {
             webApp.showPopup({
               title: "Ошибка",
-              message: error?.response?.data?.detail || "Не удалось совершить покупку. Попробуйте еще раз."
+              message: errorMessage
             });
           }
         }
