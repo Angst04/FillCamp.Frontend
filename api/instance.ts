@@ -165,5 +165,16 @@ export class HttpClient {
   }
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+// For server-side requests (SSR, API routes), use internal HTTP URL
+// For client-side requests, use the public URL (which can be HTTPS)
+const getBaseUrl = () => {
+  // Server-side: use internal API_BASE_URL (HTTP) or fallback to nginx
+  if (typeof window === "undefined") {
+    return process.env.API_BASE_URL || "http://nginx/api";
+  }
+  // Client-side: use public URL (can be HTTPS)
+  return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+};
+
+const baseUrl = getBaseUrl();
 export const api = new HttpClient(baseUrl);
