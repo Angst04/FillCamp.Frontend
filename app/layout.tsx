@@ -25,8 +25,10 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="ru" suppressHydrationWarning>
+      <head>
+        <Script src="https://telegram.org/js/telegram-web-app.js" strategy="beforeInteractive" />
+      </head>
       <body className={`${inter.variable} antialiased`}>
-        <Script src="/telegram-web-app.js" strategy="beforeInteractive" />
         <QueryProvider>
           <TelegramProvider>
             <div
