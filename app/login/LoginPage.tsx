@@ -32,49 +32,77 @@ export const LoginPage = () => {
   const isInTelegram = Boolean(webApp?.initDataUnsafe?.user?.id);
 
   const handleTelegramRegistration = async () => {
-    webApp?.requestContact(async (access: boolean, response?: RequestContactResponse) => {
-      if (response?.status === "sent") {
-        const phoneNumber = response.responseUnsafe.contact.phone_number;
-        const telegramId = user?.id?.toString() ?? "1";
-        const registeredUser = await postUser({
-          params: {
-            first_name: response.responseUnsafe.contact.first_name ?? "",
-            last_name: response.responseUnsafe.contact.last_name ?? undefined,
-            username: webApp?.initDataUnsafe.user?.username ?? undefined,
-            phone: phoneNumber,
-            parent_telegram_id: parentTelegramId ? Number(parentTelegramId) : undefined,
-            is_child: role === "child"
-          },
-          config: {
-            headers: {
-              "X-Telegram-Id": telegramId
-            }
-          }
-        });
+    if (!webApp) {
+      setIsError("Telegram WebApp не инициализирован");
+      return;
+    }
 
-        if (registeredUser.success && registeredUser.data) {
-          const setCookieResponse = await fetch("/api/logIn", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-Telegram-Id": telegramId
-            },
-            body: JSON.stringify({
-              phoneNumber: phoneNumber,
-              role: registeredUser.data.role
-            })
-          });
+    // Verify we have real Telegram user data
+    const telegramUser = webApp.initDataUnsafe?.user;
+    if (!telegramUser?.id) {
+      setIsError("Не удалось получить данные пользователя из Telegram");
+      return;
+    }
 
-          if (setCookieResponse.ok) {
-            // Clear cache on login to ensure fresh data for the new user
-            queryClient.clear();
-            // Notify TelegramProvider to update mock user
-            window.dispatchEvent(new Event("auth-changed"));
-            // Small delay to allow TelegramProvider to update before navigation
-            await new Promise((resolve) => setTimeout(resolve, 1));
-            router.push("/");
+    webApp.requestContact(async (access: boolean, response?: RequestContactResponse) => {
+      if (!access || response?.status !== "sent") {
+        setIsError("Необходимо предоставить доступ к контакту для регистрации");
+        return;
+      }
+
+      // Get phone number from contact (required)
+      const phoneNumber = response.responseUnsafe.contact.phone_number;
+      if (!phoneNumber) {
+        setIsError("Не удалось получить номер телефона");
+        return;
+      }
+
+      const telegramId = telegramUser.id.toString();
+
+      // Use real Telegram data: first_name, last_name, username from Telegram user
+      // Phone comes from contact (required for registration)
+      const registeredUser = await postUser({
+        params: {
+          first_name: telegramUser.first_name ?? "",
+          last_name: telegramUser.last_name ?? undefined,
+          username: telegramUser.username ?? undefined,
+          phone: phoneNumber,
+          parent_telegram_id: parentTelegramId ? Number(parentTelegramId) : undefined,
+          is_child: role === "child"
+        },
+        config: {
+          headers: {
+            "X-Telegram-Id": telegramId
           }
         }
+      });
+
+      if (registeredUser.success && registeredUser.data) {
+        const setCookieResponse = await fetch("/api/logIn", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Telegram-Id": telegramId
+          },
+          body: JSON.stringify({
+            phoneNumber: phoneNumber,
+            role: registeredUser.data.role
+          })
+        });
+
+        if (setCookieResponse.ok) {
+          // Clear cache on login to ensure fresh data for the new user
+          queryClient.clear();
+          // Notify TelegramProvider to update mock user
+          window.dispatchEvent(new Event("auth-changed"));
+          // Small delay to allow TelegramProvider to update before navigation
+          await new Promise((resolve) => setTimeout(resolve, 1));
+          router.push("/");
+        } else {
+          setIsError("Ошибка при сохранении сессии");
+        }
+      } else {
+        setIsError("Ошибка при регистрации пользователя");
       }
     });
   };
