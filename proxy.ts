@@ -5,7 +5,12 @@ export async function proxy(request: NextRequest) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  const checkNumberResponse = await fetch(`${url.origin}/api/isLoggedIn`, {
+  // Middleware runs server-side, so use localhost to call Next.js API routes in the same container
+  // This prevents SSL errors when the request origin is HTTPS but we're inside Docker
+  const port = process.env.PORT || 3000;
+  const isLoggedInUrl = `http://localhost:${port}/api/isLoggedIn`;
+
+  const checkNumberResponse = await fetch(isLoggedInUrl, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
