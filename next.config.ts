@@ -8,11 +8,10 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io"
       }
     ]
-  },
+  }
   // No rewrites needed - nginx handles /api/v1/* routing to backend
   // Next.js API routes in /app/api/* are handled by Next.js server
   // Enable standalone output for Docker
-  output: "standalone"
 };
 
 export default nextConfig;
