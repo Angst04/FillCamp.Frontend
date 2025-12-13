@@ -58,8 +58,15 @@ jobs:
 
                   # Copy necessary files for standalone deployment
                   cp -r .next/standalone/* deploy-build/
+                  
+                  # Ensure .next directory exists before copying static files
+                  mkdir -p deploy-build/.next
                   cp -r .next/static deploy-build/.next/static
-                  cp -r public deploy-build/public
+                  
+                  # Copy public files if they don't already exist
+                  if [ ! -d deploy-build/public ]; then
+                    cp -r public deploy-build/public
+                  fi
 
                   # Create tarball
                   tar -czf frontend-build.tar.gz -C deploy-build .
