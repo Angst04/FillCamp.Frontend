@@ -1,187 +1,242 @@
 name: Deploy Frontend
 
 on:
-    push:
-        branches:
-            - main
-    workflow_dispatch:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-    build-and-deploy:
-        runs-on: ubuntu-latest
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: "20"
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v2
-              with:
-                  version: 9
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 9
 
-            - name: Get pnpm store directory
-              id: pnpm-cache
-              shell: bash
-              run: |
-                  echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
-            - name: Setup pnpm cache
-              uses: actions/cache@v3
-              with:
-                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
-                  restore-keys: |
-                      ${{ runner.os }}-pnpm-store-
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
-            - name: Create production environment file
-              run: |
-                  cat > .env.production << EOF
-                  NODE_ENV=production
-                  NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
-                  EOF
+      - name: Create production environment file
+        run: |
+          cat > .env.production << EOF
+          NODE_ENV=production
+          NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+          EOF
 
-            - name: Install dependencies
-              run: pnpm install --frozen-lockfile
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-            - name: Build Next.js application
-              run: pnpm run build
+      - name: Build Next.js application
+        run: pnpm run build
 
-            - name: Create deployment archive
-              run: |
-                  # Create a clean build directory
-                  mkdir -p deploy-build
+      - name: Create deployment archive
+        run: |
+          # Debug: Check what's in .next directory
+          echo "📋 Checking .next structure..."
+          ls -la .next/ | head -10
 
-                  # Copy all files from standalone output (this includes server.js and .next directory)
-                  cp -r .next/standalone/* deploy-build/
-                  
-                  # Copy static files to the .next directory in standalone output
-                  # The standalone output already has a .next directory, we need to add static to it
-                  if [ -d deploy-build/.next ]; then
-                    cp -r .next/static deploy-build/.next/static
-                  else
-                    echo "⚠️ Warning: .next directory not found in standalone, creating it"
-                    mkdir -p deploy-build/.next
-                    cp -r .next/static deploy-build/.next/static
-                  fi
-                  
-                  # Copy public files if they don't already exist
-                  if [ ! -d deploy-build/public ]; then
-                    cp -r public deploy-build/public
-                  fi
+          # Debug: Check standalone structure
+          echo "📋 Checking standalone structure..."
+          if [ -d .next/standalone ]; then
+            echo "Standalone root contents:"
+            ls -la .next/standalone/ | head -15
+            if [ -d .next/standalone/.next ]; then
+              echo "📋 Contents of standalone/.next:"
+              ls -la .next/standalone/.next/ | head -15
+            else
+              echo "⚠️ standalone/.next directory does not exist"
+            fi
+          fi
 
-                  # Verify critical files exist
-                  if [ ! -f deploy-build/server.js ]; then
-                    echo "❌ Error: server.js not found in standalone build"
-                    exit 1
-                  fi
-                  
-                  if [ ! -f deploy-build/.next/BUILD_ID ]; then
-                    echo "❌ Error: BUILD_ID not found. Checking standalone structure..."
-                    ls -la deploy-build/
-                    ls -la deploy-build/.next/ 2>/dev/null || echo ".next directory not found"
-                    exit 1
-                  fi
-                  
-                  echo "✅ Build structure verified:"
-                  echo "  - server.js: $(test -f deploy-build/server.js && echo 'found' || echo 'missing')"
-                  echo "  - BUILD_ID: $(test -f deploy-build/.next/BUILD_ID && echo 'found' || echo 'missing')"
-                  echo "  - static files: $(test -d deploy-build/.next/static && echo 'found' || echo 'missing')"
+          # Create a clean build directory
+          mkdir -p deploy-build
 
-                  # Create tarball
-                  tar -czf frontend-build.tar.gz -C deploy-build .
+          # Copy all files from standalone output (including hidden files/directories like .next)
+          # Using tar to preserve all files including hidden ones
+          cd .next/standalone
+          tar cf - . | (cd ../../deploy-build && tar xf -)
+          cd ../..
 
-            - name: Deploy to server via SSH
-              uses: appleboy/scp-action@v0.1.7
-              with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  port: ${{ secrets.SSH_PORT || 22 }}
-                  source: "frontend-build.tar.gz"
-                  target: "/tmp/"
+          # Ensure .next directory exists in deploy-build (create if it doesn't exist from standalone)
+          mkdir -p deploy-build/.next
 
-            - name: Extract and setup on server
-              uses: appleboy/ssh-action@v1.0.3
-              with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  port: ${{ secrets.SSH_PORT || 22 }}
-                  script: |
-                      # Create backup of current build
-                      if [ -d /root/frontend-build ]; then
-                        mv /root/frontend-build /root/frontend-build.backup.$(date +%Y%m%d_%H%M%S)
-                      fi
+          # Copy static files to the .next directory (required for Next.js)
+          echo "Copying static files..."
+          cp -r .next/static deploy-build/.next/static
 
-                      # Extract new build
-                      mkdir -p /root/frontend-build
-                      tar -xzf /tmp/frontend-build.tar.gz -C /root/frontend-build
-                      rm /tmp/frontend-build.tar.gz
+          # Copy BUILD_ID file (required for Next.js production server)
+          echo "Copying BUILD_ID..."
+          if [ -f .next/BUILD_ID ]; then
+            cp .next/BUILD_ID deploy-build/.next/BUILD_ID
+            echo "✅ BUILD_ID copied from .next/BUILD_ID"
+          elif [ -f .next/standalone/.next/BUILD_ID ]; then
+            cp .next/standalone/.next/BUILD_ID deploy-build/.next/BUILD_ID
+            echo "✅ BUILD_ID copied from standalone/.next/BUILD_ID"
+          elif [ -f deploy-build/.next/BUILD_ID ]; then
+            echo "✅ BUILD_ID already exists in deploy-build/.next/"
+          else
+            echo "❌ Error: BUILD_ID not found in any expected location"
+            echo "Searching for BUILD_ID..."
+            find .next -name "BUILD_ID" 2>/dev/null || echo "No BUILD_ID found"
+            exit 1
+          fi
 
-                      # Restart frontend service to pick up new build
-                      cd /root
-                      docker-compose restart frontend
+          # Copy public files if they don't already exist
+          if [ ! -d deploy-build/public ]; then
+            echo "Copying public files..."
+            cp -r public deploy-build/public
+          fi
 
-                      # Keep only last 3 backups
-                      ls -dt /root/frontend-build.backup.* | tail -n +4 | xargs -r rm -rf
+          # Verify critical files and directories exist
+          echo "Verifying build structure..."
+          if [ ! -f deploy-build/server.js ]; then
+            echo "❌ Error: server.js not found in standalone build"
+            exit 1
+          fi
 
-                      echo "✅ Frontend deployment completed successfully!"
+          if [ ! -d deploy-build/.next ]; then
+            echo "❌ Error: .next directory not found after copy"
+            exit 1
+          fi
 
-            - name: Verify deployment
-              uses: appleboy/ssh-action@v1.0.3
-              with:
-                  host: ${{ secrets.SSH_HOST }}
-                  username: ${{ secrets.SSH_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  port: ${{ secrets.SSH_PORT || 22 }}
-                  script: |
-                      # Check if frontend service is running
-                      if docker ps | grep -q fillcamp-frontend; then
-                        echo "✅ Frontend service is running"
-                      else
-                        echo "❌ Frontend service is not running"
-                        exit 1
-                      fi
+          if [ ! -f deploy-build/.next/BUILD_ID ]; then
+            echo "❌ Error: BUILD_ID not found after copy. Checking structure..."
+            echo "Contents of deploy-build:"
+            ls -la deploy-build/
+            echo "Contents of deploy-build/.next (if exists):"
+            ls -la deploy-build/.next/ 2>/dev/null || echo ".next directory not found"
+            exit 1
+          fi
 
-                      # Check if nginx is running
-                      if docker ps | grep -q fillcamp-nginx; then
-                        echo "✅ Nginx is running"
-                      else
-                        echo "❌ Nginx is not running"
-                        exit 1
-                      fi
+          if [ ! -d deploy-build/.next/static ]; then
+            echo "❌ Error: .next/static directory not found after copy"
+            exit 1
+          fi
 
-                      # Check if build files exist
-                      if [ -f /root/frontend-build/server.js ]; then
-                        echo "✅ Frontend build files deployed successfully"
-                      else
-                        echo "❌ Frontend build files not found"
-                        exit 1
-                      fi
+          echo "✅ Build structure verified:"
+          echo "  - server.js: $(test -f deploy-build/server.js && echo 'found' || echo 'missing')"
+          echo "  - .next directory: $(test -d deploy-build/.next && echo 'found' || echo 'missing')"
+          echo "  - BUILD_ID: $(test -f deploy-build/.next/BUILD_ID && echo 'found' || echo 'missing')"
+          echo "  - static files: $(test -d deploy-build/.next/static && echo 'found' || echo 'missing')"
+          echo ""
+          echo "Final structure:"
+          ls -la deploy-build/
+          echo ""
+          echo ".next contents:"
+          ls -la deploy-build/.next/
 
-                      # Wait a bit for frontend to be ready
-                      sleep 5
+          # Create tarball
+          tar -czf frontend-build.tar.gz -C deploy-build .
 
-                      # Check if frontend is responding
-                      if docker exec fillcamp-frontend node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))" 2>/dev/null; then
-                        echo "✅ Frontend is responding"
-                      elif docker exec fillcamp-frontend node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))" 2>/dev/null; then
-                        echo "✅ Frontend is responding (root endpoint)"
-                      else
-                        echo "⚠️ Frontend health check failed, but service is running"
-                      fi
+      - name: Deploy to server via SSH
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          source: "frontend-build.tar.gz"
+          target: "/tmp/"
 
-            - name: Notify on success
-              if: success()
-              run: |
-                  echo "🎉 Frontend deployed successfully!"
+      - name: Extract and setup on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            # Create backup of current build
+            if [ -d /root/frontend-build ]; then
+              mv /root/frontend-build /root/frontend-build.backup.$(date +%Y%m%d_%H%M%S)
+            fi
 
-            - name: Notify on failure
-              if: failure()
-              run: |
-                  echo "❌ Deployment failed. Check the logs above."
+            # Extract new build
+            mkdir -p /root/frontend-build
+            tar -xzf /tmp/frontend-build.tar.gz -C /root/frontend-build
+            rm /tmp/frontend-build.tar.gz
+
+            # Restart frontend service to pick up new build
+            cd /root
+            docker-compose restart frontend
+
+            # Keep only last 3 backups
+            ls -dt /root/frontend-build.backup.* | tail -n +4 | xargs -r rm -rf
+
+            echo "✅ Frontend deployment completed successfully!"
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            # Check if frontend service is running
+            if docker ps | grep -q fillcamp-frontend; then
+              echo "✅ Frontend service is running"
+            else
+              echo "❌ Frontend service is not running"
+              exit 1
+            fi
+
+            # Check if nginx is running
+            if docker ps | grep -q fillcamp-nginx; then
+              echo "✅ Nginx is running"
+            else
+              echo "❌ Nginx is not running"
+              exit 1
+            fi
+
+            # Check if build files exist
+            if [ -f /root/frontend-build/server.js ]; then
+              echo "✅ Frontend build files deployed successfully"
+            else
+              echo "❌ Frontend build files not found"
+              exit 1
+            fi
+
+            # Wait a bit for frontend to be ready
+            sleep 5
+
+            # Check if frontend is responding
+            if docker exec fillcamp-frontend node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))" 2>/dev/null; then
+              echo "✅ Frontend is responding"
+            elif docker exec fillcamp-frontend node -e "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)}).on('error', () => process.exit(1))" 2>/dev/null; then
+              echo "✅ Frontend is responding (root endpoint)"
+            else
+              echo "⚠️ Frontend health check failed, but service is running"
+            fi
+
+      - name: Notify on success
+        if: success()
+        run: |
+          echo "🎉 Frontend deployed successfully!"
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed. Check the logs above."
