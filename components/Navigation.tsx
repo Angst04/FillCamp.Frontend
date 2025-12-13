@@ -11,7 +11,7 @@ import { useMemo } from "react";
 const allNavItems = [
   { href: "/", label: "Новости", icon: Home },
   { href: "/game", label: "Игра", icon: Gamepad2, hideForRoles: ["parent"] },
-  { href: "/shop", label: "Магазин", icon: ShoppingCart },
+  { href: "/shop", label: "Магазин", icon: ShoppingCart, hideForRoles: ["child"] },
   { href: "/referrals", label: "Друзья", icon: Users },
   { href: "/profile", label: "Профиль", icon: User }
 ];

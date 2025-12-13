@@ -2,6 +2,8 @@ import { groq } from "next-sanity";
 import { ShopPage } from "./ShopPage";
 import { Metadata } from "next";
 import { client } from "@/sanity/client";
+import { getAuthSession } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export const revalidate = 3600;
 
@@ -59,6 +61,12 @@ async function getProgrammsPageData() {
   }`);
 }
 async function getData() {
+  const session = await getAuthSession();
+
+  // Redirect parents to home page
+  if (session.role === "child") {
+    redirect("/");
+  }
   const merch = await getMerchPageData();
   const lessons = await getLessonsPageData();
   const programms = await getProgrammsPageData();
