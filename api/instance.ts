@@ -172,8 +172,37 @@ const getBaseUrl = () => {
   if (typeof window === "undefined") {
     return process.env.API_BASE_URL || "http://nginx/api";
   }
-  // Client-side: use public URL (can be HTTPS)
-  return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
+  
+  // Client-side: use public URL (must match page protocol to avoid mixed content)
+  const envUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  
+  if (envUrl) {
+    // If environment variable is set, ensure it uses HTTPS if page is HTTPS
+    try {
+      const url = new URL(envUrl);
+      // If page is HTTPS and env URL is HTTP, upgrade to HTTPS
+      if (window.location.protocol === "https:" && url.protocol === "http:") {
+        url.protocol = "https:";
+        return url.toString();
+      }
+      return envUrl;
+    } catch {
+      // If URL parsing fails, return as-is (might be relative)
+      return envUrl;
+    }
+  }
+  
+  // Fallback: detect protocol from current page
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  
+  // For production (campminiapp.ru), use same protocol as page
+  if (hostname === "campminiapp.ru" || hostname.includes("campminiapp.ru")) {
+    return `${protocol}//${hostname}/api`;
+  }
+  
+  // For local development, use HTTP
+  return "http://localhost:8000/api";
 };
 
 const baseUrl = getBaseUrl();
