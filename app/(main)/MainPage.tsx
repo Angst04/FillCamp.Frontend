@@ -19,7 +19,7 @@ export const MainPage = ({ news }: MainPageProps) => {
       className="max-w-2xl mx-auto px-4 py-6"
     >
       <PageHeader
-        title={`Привет, @${user?.first_name || user?.username}!`}
+        title={`Привет, ${user?.first_name || user?.username}!`}
         description="Добро пожаловать в наше сообщество"
         emoji="👋"
       />
