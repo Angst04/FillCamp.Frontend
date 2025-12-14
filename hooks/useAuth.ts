@@ -10,8 +10,13 @@ interface AuthResponse {
   role?: string;
 }
 
-const fetchAuthStatus = async (): Promise<AuthResponse> => {
-  const response = await fetch("/api/isLoggedIn");
+const fetchAuthStatus = async (currentTelegramId: string | null): Promise<AuthResponse> => {
+  const url = new URL("/api/isLoggedIn", window.location.origin);
+  if (currentTelegramId) {
+    url.searchParams.set("currentTelegramId", currentTelegramId);
+  }
+  
+  const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error("Failed to fetch auth status");
   }
@@ -20,10 +25,12 @@ const fetchAuthStatus = async (): Promise<AuthResponse> => {
 
 export const useAuth = () => {
   const { user } = useTelegram();
-  const id = user?.id?.toString() ?? "1";
+  const currentTelegramId = user?.id?.toString() ?? null;
+  const id = currentTelegramId ?? "1";
+  
   return useQuery({
     queryKey: ["auth", id],
-    queryFn: fetchAuthStatus,
+    queryFn: () => fetchAuthStatus(currentTelegramId),
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: false,
     enabled: !!user

@@ -10,12 +10,29 @@ export interface AuthSession {
 /**
  * Get authentication session data from cookies
  * Use this in Server Components to access user session
+ * @param currentTelegramId - Optional current Telegram user ID to validate against stored cookie
  */
-export const getAuthSession = async (): Promise<AuthSession> => {
+export const getAuthSession = async (currentTelegramId?: string | null): Promise<AuthSession> => {
   const cookieStore = await cookies();
   const telegramId = cookieStore.get("telegramId")?.value ?? null;
   const phoneNumber = cookieStore.get("number")?.value ?? null;
   const role = cookieStore.get("role")?.value ?? null;
+
+  // If currentTelegramId is provided, validate it matches the stored cookie
+  if (currentTelegramId && telegramId) {
+    if (currentTelegramId !== telegramId) {
+      // IDs don't match - user switched accounts, clear cookies
+      cookieStore.delete("number");
+      cookieStore.delete("telegramId");
+      cookieStore.delete("role");
+      return {
+        isLoggedIn: false,
+        telegramId: null,
+        phoneNumber: null,
+        role: null
+      };
+    }
+  }
 
   return {
     isLoggedIn: Boolean(telegramId && phoneNumber && role),
