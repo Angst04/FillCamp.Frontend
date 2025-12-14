@@ -6,6 +6,7 @@ interface TelegramContextType {
   user: TelegramUser | null;
   webApp: WebApp | null;
   isReady: boolean;
+  referralCode: string | null;
 }
 
 const getMockUserFromCookies = async (): Promise<TelegramUser> => {
@@ -45,7 +46,8 @@ const getMockUserFromCookies = async (): Promise<TelegramUser> => {
 const TelegramContext = createContext<TelegramContextType>({
   user: null,
   webApp: null,
-  isReady: false
+  isReady: false,
+  referralCode: null
 });
 
 export const useTelegram = () => useContext(TelegramContext);
@@ -55,11 +57,62 @@ const isMobileDevice = (): boolean => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
 
+const extractReferralCode = (webApp: WebApp | null): string | null => {
+  if (typeof window === "undefined") return null;
+
+  // First, try to get from Telegram WebApp startParam (if available)
+  // When user opens via link like https://t.me/bot/app?start=CODE
+  // Telegram provides it in webApp.startParam or initDataUnsafe.start_param
+  if (webApp) {
+    // Check startParam via type assertion (may not be in type definitions)
+    const webAppWithStartParam = webApp as WebApp & { startParam?: string };
+    if (webAppWithStartParam.startParam) {
+      const startParam = webAppWithStartParam.startParam;
+      // startParam might be "ref=CODE" or just "CODE"
+      if (startParam.startsWith("ref=")) {
+        return startParam.substring(4);
+      }
+      // If it's just the code, return it
+      if (startParam.length > 0) {
+        return startParam;
+      }
+    }
+
+    // Check initDataUnsafe.start_param (for ?start=CODE links)
+    const startParam = webApp.initDataUnsafe?.start_param;
+    if (startParam) {
+      // start_param might be "ref=CODE" or just "CODE"
+      if (startParam.startsWith("ref=")) {
+        return startParam.substring(4);
+      }
+      if (startParam.length > 0) {
+        return startParam;
+      }
+    }
+
+    // Check initDataUnsafe for ref parameter (if Telegram passes it)
+    const initData = webApp.initDataUnsafe as unknown as Record<string, unknown> | undefined;
+    if (initData?.ref && typeof initData.ref === "string") {
+      return initData.ref;
+    }
+  }
+
+  // Fallback: check URL query params (useful for development/testing and ?ref=CODE links)
+  const urlParams = new URLSearchParams(window.location.search);
+  const refParam = urlParams.get("ref");
+  if (refParam) {
+    return refParam;
+  }
+
+  return null;
+};
+
 export function TelegramProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<TelegramContextType>({
     user: null,
     webApp: null,
-    isReady: false
+    isReady: false,
+    referralCode: null
   });
 
   const initTelegram = useCallback(async () => {
@@ -86,18 +139,26 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
         user = null;
       }
 
+      // Extract referral code from startParam or URL
+      const referralCode = extractReferralCode(tg);
+
       setState({
         webApp: tg,
         user,
-        isReady: true
+        isReady: true,
+        referralCode
       });
     } else {
       // Not in Telegram WebApp - use mock data for development
       const mockUser = await getMockUserFromCookies();
+      // Still try to extract referral code from URL (for development/testing)
+      const referralCode = extractReferralCode(null);
+
       setState({
         webApp: null,
         user: mockUser,
-        isReady: true
+        isReady: true,
+        referralCode
       });
     }
   }, []);
