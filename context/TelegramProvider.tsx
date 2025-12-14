@@ -59,51 +59,11 @@ const isMobileDevice = (): boolean => {
 
 const extractReferralCode = (webApp: WebApp | null): string | null => {
   if (typeof window === "undefined") return null;
-
-  // First, try to get from Telegram WebApp startParam (if available)
-  // When user opens via link like https://t.me/bot/app?start=CODE
-  // Telegram provides it in webApp.startParam or initDataUnsafe.start_param
   if (webApp) {
-    // Check startParam via type assertion (may not be in type definitions)
-    const webAppWithStartParam = webApp as WebApp & { startParam?: string };
-    if (webAppWithStartParam.startParam) {
-      const startParam = webAppWithStartParam.startParam;
-      // startParam might be "ref=CODE" or just "CODE"
-      if (startParam.startsWith("ref=")) {
-        return startParam.substring(4);
-      }
-      // If it's just the code, return it
-      if (startParam.length > 0) {
-        return startParam;
-      }
-    }
+    const startParam = webApp.initDataUnsafe.start_param ?? null;
 
-    // Check initDataUnsafe.start_param (for ?start=CODE links)
-    const startParam = webApp.initDataUnsafe?.start_param;
-    if (startParam) {
-      // start_param might be "ref=CODE" or just "CODE"
-      if (startParam.startsWith("ref=")) {
-        return startParam.substring(4);
-      }
-      if (startParam.length > 0) {
-        return startParam;
-      }
-    }
-
-    // Check initDataUnsafe for ref parameter (if Telegram passes it)
-    const initData = webApp.initDataUnsafe as unknown as Record<string, unknown> | undefined;
-    if (initData?.ref && typeof initData.ref === "string") {
-      return initData.ref;
-    }
+    return startParam;
   }
-
-  // Fallback: check URL query params (useful for development/testing and ?ref=CODE links)
-  const urlParams = new URLSearchParams(window.location.search);
-  const refParam = urlParams.get("ref");
-  if (refParam) {
-    return refParam;
-  }
-
   return null;
 };
 
