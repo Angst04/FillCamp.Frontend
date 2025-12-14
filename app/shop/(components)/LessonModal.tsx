@@ -28,17 +28,6 @@ export const LessonModal = ({ isOpen, handleCloseModal, lesson }: LessonModalPro
   const bonusBalance = profile?.data?.bonus_balance ?? 0;
 
   const purchase = async () => {
-    // Проверка на количество бонусов при покупке с бонусами
-    if (useBonus && bonusBalance === 0) {
-      if (webApp) {
-        webApp.showPopup({
-          title: "Ошибка",
-          message: "У вас недостаточно бонусов для покупки с использованием баллов"
-        });
-      }
-      return;
-    }
-
     const finalTotal = calculateFinalPrice({
       price,
       quantity,

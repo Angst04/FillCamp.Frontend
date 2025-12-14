@@ -40,17 +40,6 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const totalPrice = (paymentType === "prepayment" ? prepaymentPrice : basePrice) + transferCost;
 
   const purchase = async () => {
-    // Проверка на количество бонусов при покупке с бонусами
-    if (useBonus && bonusBalance === 0) {
-      if (webApp) {
-        webApp.showPopup({
-          title: "Ошибка",
-          message: "У вас недостаточно бонусов для покупки с использованием баллов"
-        });
-      }
-      return;
-    }
-
     const finalTotal = calculateFinalPrice({
       price: totalPrice,
       quantity: 1,
