@@ -24,7 +24,7 @@ export const LoginPage = () => {
   const [isError, setIsError] = useState<string | undefined>(undefined);
   const [parentTelegramId, setParentTelegramId] = useState<string>("");
   const { mutateAsync: postUser } = usePostUserMutations();
-  const { webApp, user } = useTelegram();
+  const { webApp } = useTelegram();
   const router = useRouter();
   const queryClient = useQueryClient();
 

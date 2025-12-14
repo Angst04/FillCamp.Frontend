@@ -6,7 +6,6 @@ interface TelegramContextType {
   user: TelegramUser | null;
   webApp: WebApp | null;
   isReady: boolean;
-  referralCode: string | null;
 }
 
 const getMockUserFromCookies = async (): Promise<TelegramUser> => {
@@ -46,8 +45,7 @@ const getMockUserFromCookies = async (): Promise<TelegramUser> => {
 const TelegramContext = createContext<TelegramContextType>({
   user: null,
   webApp: null,
-  isReady: false,
-  referralCode: null
+  isReady: false
 });
 
 export const useTelegram = () => useContext(TelegramContext);
@@ -57,22 +55,11 @@ const isMobileDevice = (): boolean => {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 };
 
-const extractReferralCode = (webApp: WebApp | null): string | null => {
-  if (typeof window === "undefined") return null;
-  if (webApp) {
-    const startParam = webApp.initDataUnsafe.start_param ?? null;
-
-    return startParam;
-  }
-  return null;
-};
-
 export function TelegramProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<TelegramContextType>({
     user: null,
     webApp: null,
-    isReady: false,
-    referralCode: null
+    isReady: false
   });
 
   const initTelegram = useCallback(async () => {
@@ -98,27 +85,20 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
         // Don't use mock data here - return null instead
         user = null;
       }
-
-      // Extract referral code from startParam or URL
-      const referralCode = extractReferralCode(tg);
-
       setState({
         webApp: tg,
         user,
-        isReady: true,
-        referralCode
+        isReady: true
       });
     } else {
       // Not in Telegram WebApp - use mock data for development
       const mockUser = await getMockUserFromCookies();
       // Still try to extract referral code from URL (for development/testing)
-      const referralCode = extractReferralCode(null);
 
       setState({
         webApp: null,
         user: mockUser,
-        isReady: true,
-        referralCode
+        isReady: true
       });
     }
   }, []);
