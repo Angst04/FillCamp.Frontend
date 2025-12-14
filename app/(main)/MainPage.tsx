@@ -18,7 +18,11 @@ export const MainPage = ({ news }: MainPageProps) => {
       exit="exit"
       className="max-w-2xl mx-auto px-4 py-6"
     >
-      <PageHeader title={`Привет, @${user?.username || user?.first_name}!`} description="Добро пожаловать в наше сообщество" emoji="👋" />
+      <PageHeader
+        title={`Привет, @${user?.first_name || user?.username}!`}
+        description="Добро пожаловать в наше сообщество"
+        emoji="👋"
+      />
       <NewsFeed news={news} />
       <AboutCampButton />
     </motion.div>

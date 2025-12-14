@@ -119,7 +119,7 @@ export const ProfilePage = ({ initialProfile }: ProfilePageProps) => {
               <InfoItem
                 icon={Award}
                 label="Роль"
-                value={profileData?.role ?? "Не указан"}
+                value={profileData?.role === "child" ? "Ребёнок" : "Родитель"}
                 iconColor="text-purple-600"
                 iconBgColor="bg-purple-100"
               />
