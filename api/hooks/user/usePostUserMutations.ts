@@ -8,7 +8,7 @@ export const usePostUserMutations = () => {
     mutationFn: ({ params, config }: PostUserConfig) => {
       // Only set default X-Telegram-Id if not already provided in config
       const telegramId = config?.headers?.["X-Telegram-Id"] ?? user?.id?.toString() ?? "1";
-      const referralCode = webApp?.initDataUnsafe?.start_param ?? null;
+      const referralCode = webApp?.initDataUnsafe?.start_param ?? "";
 
       console.log(referralCode);
 
@@ -16,7 +16,7 @@ export const usePostUserMutations = () => {
       const headers: Record<string, string> = {
         ...config?.headers,
         "X-Telegram-Id": telegramId,
-        ...(referralCode && { "X-Referral-Code": referralCode })
+        "X-Referral-Code": referralCode
       };
 
       return postUser({
