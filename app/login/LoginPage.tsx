@@ -99,10 +99,10 @@ export const LoginPage = () => {
           await new Promise((resolve) => setTimeout(resolve, 1));
           router.push("/");
         } else {
-          setIsError("Ошибка при сохранении сессии");
+          setIsError(`Ошибка при сохранении сессии ${setCookieResponse.statusText}`);
         }
       } else {
-        setIsError("Ошибка при регистрации пользователя");
+        setIsError(`Ошибка при регистрации пользователя ${registeredUser.error?.detail}`);
       }
     });
   };
@@ -210,16 +210,19 @@ export const LoginPage = () => {
           <input
             type="text"
             placeholder="Введи id своего родителя"
-            className="w-full rounded-[18px] text-lg font-bold text-black px-4 py-2 border border-black focus:outline-none"
+            className="w-full rounded-[18px] mb-2 text-lg font-bold text-black px-4 py-2 border border-black focus:outline-none"
             value={parentTelegramId}
             onChange={(e) => setParentTelegramId(e.target.value)}
           />
+          <h2 className="text-center text-base font-normal text-[#656565] mb-6 leading-[1.1]">
+            Telegram id ваш родитель может посмотреть на странице профиля
+          </h2>
         </motion.div>
       )}
       <Button
         variant="secondary"
         onClick={handleContinue}
-        className="rounded-[18px] py-4 px-20 text-lg font-bold leading-[1.1] text-white flex items-center justify-center gap-2"
+        className="rounded-[18px] py-4 px-20 mb-2 text-lg font-bold leading-[1.1] text-white flex items-center justify-center gap-2"
       >
         <Phone size={18} />
         <span>Поделиться</span>

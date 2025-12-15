@@ -15,6 +15,8 @@ declare global {
     shifts: Shift[];
     prepaymentPrice: number;
     transferPrice: number;
+    bonusWriteOff: number;
+    bonusCashBack: number;
   }
 
   interface Merch {
@@ -46,6 +48,8 @@ declare global {
       shifts: Shift;
       prepaymentPrice: number;
       transferPrice: number;
+      bonusWriteOff: number;
+      bonusCashBack: number;
     };
     merch?: {
       title: string;

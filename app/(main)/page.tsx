@@ -3,7 +3,7 @@ import { groq } from "next-sanity";
 import { MainPage } from "./MainPage";
 import { Metadata } from "next";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Новости FillCamp",

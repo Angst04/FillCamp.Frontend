@@ -19,7 +19,7 @@ interface ProgrammModalProps {
 type TransferType = "both-ways" | "one-way" | "no";
 
 export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammModalProps) => {
-  const { season, place, lang, description, shifts, prepaymentPrice, transferPrice } = programm;
+  const { season, place, lang, description, shifts, prepaymentPrice, transferPrice, bonusWriteOff, bonusCashBack } = programm;
   const [useBonus, setUseBonus] = useState(false);
   const [selectedShiftIndex, setSelectedShiftIndex] = useState(0);
   const [paymentType, setPaymentType] = useState<"prepayment" | "full">("full");
@@ -40,14 +40,16 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const totalPrice = (paymentType === "prepayment" ? prepaymentPrice : basePrice) + transferCost;
 
   const purchase = async () => {
+    const maxBonusToUse = useBonus ? Math.min(bonusBalance, totalPrice, bonusWriteOff) : 0;
+    
     const finalTotal = calculateFinalPrice({
       price: totalPrice,
       quantity: 1,
-      bonusPoints: bonusBalance,
+      bonusPoints: maxBonusToUse,
       useBonus
     });
 
-    const bonusUsed = useBonus ? Math.min(bonusBalance, totalPrice) : 0;
+    const bonusUsed = maxBonusToUse;
 
     createOrder(
       {
@@ -61,7 +63,9 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
                 description: `${season}. ${place}. ${lang}`,
                 shifts: selectedShift,
                 prepaymentPrice: paymentType === "prepayment" ? prepaymentPrice : basePrice,
-                transferPrice: transferCost
+                transferPrice: transferCost,
+                bonusWriteOff,
+                bonusCashBack
               },
               quantity: 1
             }
@@ -102,10 +106,11 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
     );
   };
 
+  const maxBonusToUseForDisplay = useBonus ? Math.min(bonusBalance, totalPrice, bonusWriteOff) : 0;
   const finalPrice = calculateFinalPrice({
     price: totalPrice,
     quantity: 1,
-    bonusPoints: bonusBalance,
+    bonusPoints: maxBonusToUseForDisplay,
     useBonus
   });
 

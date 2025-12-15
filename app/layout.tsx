@@ -5,6 +5,7 @@ import { TelegramProvider } from "@/context/TelegramProvider";
 import Script from "next/script";
 import { QueryProvider } from "@/context/QueryProvider";
 import Navigation from "@/components/Navigation";
+import { RouteBackground } from "@/components/RouteBackground";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -31,9 +32,12 @@ export default async function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <QueryProvider>
           <TelegramProvider>
+            <RouteBackground />
             <div
               className="min-h-screen pb-16"
-              style={{ paddingTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)" }}
+              style={{
+                paddingTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
+              }}
             >
               {children}
             </div>

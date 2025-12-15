@@ -4,7 +4,7 @@ import { getProfile } from "@/api/requests/profile";
 import { getAuthHeaders, isAuthenticated } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Профиль",

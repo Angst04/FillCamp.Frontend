@@ -11,9 +11,9 @@ import { pageVariants } from "@/lib/animations";
 import { useGameWebSocket } from "@/api/hooks/game/useGameWebSocket";
 import { useGetGameStateQuery } from "@/api/hooks/game/useGetGameStateQuery";
 
-const COINS_PER_TAP = 1;
+const COINS_PER_TAP = 0.05;
 const CLICK_ANIMATION_DURATION = 1000;
-const MAX_ENERGY = 1000;
+const MAX_ENERGY = Math.floor(250 / COINS_PER_TAP);
 
 interface ClickAnimation {
   id: number;
@@ -29,7 +29,7 @@ export const GamePage = () => {
 
   // Wait for game state to load before initializing WebSocket
   const initialCoins = gameState?.data?.new_bonus_balance ?? 0;
-  const initialEnergy = gameState?.data?.current_energy ?? 1000;
+  const initialEnergy = gameState?.data?.current_energy;
 
   const {
     connectionState,
@@ -107,9 +107,6 @@ export const GamePage = () => {
       animate="animate"
       exit="exit"
       className="min-h-screen px-4 pb-20 pt-10 mt-[-20px]"
-      style={{
-        background: "linear-gradient(126deg, #0048F2 0%, #F0F0E9 80%)"
-      }}
     >
       <div className="max-w-2xl mx-auto">
         <PageHeader

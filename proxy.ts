@@ -16,7 +16,7 @@ export async function proxy(request: NextRequest) {
       "Content-Type": "application/json",
       Cookie: request.headers.get("cookie") || ""
     },
-    next: { revalidate: 86400 }
+    next: { revalidate: 300 }
   });
   const checkNumberData = await checkNumberResponse.json();
 
