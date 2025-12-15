@@ -19,16 +19,7 @@ export default function FriendsList({ referrals }: FriendsListProps) {
       <div className="space-y-3">
         {referrals.map((referral) => {
           const fullName = [referral.first_name, referral.last_name].filter(Boolean).join(" ") || "Пользователь";
-          return (
-            <UserListItem
-              key={referral.tg_id}
-              name={fullName}
-              avatarGradient="from-purple-500 to-blue-600"
-              rightContent={
-                <p className="font-semibold text-[#408D26] text-sm">+{100}</p>
-              }
-            />
-          );
+          return <UserListItem key={referral.tg_id} name={fullName} avatarGradient="from-purple-500 to-blue-600" />;
         })}
       </div>
     </Card>
