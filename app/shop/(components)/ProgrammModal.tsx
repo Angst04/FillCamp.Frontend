@@ -19,7 +19,8 @@ interface ProgrammModalProps {
 type TransferType = "both-ways" | "one-way" | "no";
 
 export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammModalProps) => {
-  const { season, place, lang, description, shifts, prepaymentPrice, transferPrice, bonusWriteOff, bonusCashBack } = programm;
+  const { season, place, lang, description, shifts, prepaymentPrice, transferPrice, bonusWriteOff, bonusCashBack } =
+    programm;
   const [useBonus, setUseBonus] = useState(false);
   const [selectedShiftIndex, setSelectedShiftIndex] = useState(0);
   const [paymentType, setPaymentType] = useState<"prepayment" | "full">("full");
@@ -31,7 +32,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
 
   const bonusBalance = profile?.data?.bonus_balance ?? 0;
 
-  const selectedShift = shifts[selectedShiftIndex];
+  const selectedShift = shifts && shifts.length > 0 ? shifts[selectedShiftIndex] : null;
   const basePrice = selectedShift ? selectedShift.price : 0;
 
   // Calculate transfer cost based on selected transfer type
@@ -40,8 +41,18 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const totalPrice = (paymentType === "prepayment" ? prepaymentPrice : basePrice) + transferCost;
 
   const purchase = async () => {
+    if (!selectedShift) {
+      if (webApp) {
+        webApp.showPopup({
+          title: "Ошибка",
+          message: "Пожалуйста, выберите смену для продолжения."
+        });
+      }
+      return;
+    }
+
     const maxBonusToUse = useBonus ? Math.min(bonusBalance, totalPrice, bonusWriteOff) : 0;
-    
+
     const finalTotal = calculateFinalPrice({
       price: totalPrice,
       quantity: 1,
@@ -94,7 +105,8 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
         },
         onError: (error: any) => {
           // Правильная обработка ошибок сервера
-          const errorMessage = error?.error?.detail || error?.message || "Не удалось совершить покупку. Попробуйте еще раз.";
+          const errorMessage =
+            error?.error?.detail || error?.message || "Не удалось совершить покупку. Попробуйте еще раз.";
           if (webApp) {
             webApp.showPopup({
               title: "Ошибка",
@@ -135,7 +147,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
           )}
 
           {/* Shift Selection */}
-          {shifts.length > 0 && (
+          {shifts && shifts.length > 0 && (
             <div className="flex flex-col gap-2">
               <label htmlFor="shift-select" className="text-sm font-medium text-gray-700">
                 Выберите смену:
@@ -228,7 +240,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
             Итого: <span className="text-3xl">{finalPrice} ₽</span>
           </span>
         </div>
-        <Button variant="primary" onClick={purchase} disabled={isPending}>
+        <Button variant="primary" onClick={purchase} disabled={isPending || !selectedShift}>
           {isPending ? "Обработка..." : "Купить"}
         </Button>
       </div>
