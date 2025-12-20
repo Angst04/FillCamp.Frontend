@@ -43,7 +43,7 @@ async function getLessonsPageData() {
 }
 
 async function getProgrammsPageData() {
-  return await client.fetch(groq`*[_type == "programmsPage"][0]{
+  const programms = await client.fetch(groq`*[_type == "programmsPage"]{
     "programms": programms[] { 
       season,
       place,
@@ -59,6 +59,9 @@ async function getProgrammsPageData() {
       bonusCashBack,
     }
   }`);
+  return {
+    programms: programms.flatMap((item: { programms: Programm[] }) => item.programms)
+  };
 }
 async function getData() {
   const merch = await getMerchPageData();
