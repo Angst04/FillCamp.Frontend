@@ -9,7 +9,7 @@ declare global {
 
   interface Programm {
     season: Season;
-    place: string;
+    location: string;
     lang: string;
     description: CustomTextBlock[];
     shifts: Shift[];
@@ -42,7 +42,7 @@ declare global {
     quantity: number;
     programm?: {
       season: Season;
-      place: string;
+      location: string;
       lang: string;
       description: string;
       shifts: Shift;

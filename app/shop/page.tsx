@@ -43,12 +43,10 @@ async function getLessonsPageData() {
 }
 
 async function getProgrammsPageData() {
-  const programms = await client.fetch(groq`*[_type == "programmsPage"]{
-    "programms": programms[] { 
+  const programmsPages = await client.fetch(groq`*[_type == "programmsPage"]{
+    location,
+    seasons[] {
       season,
-      place,
-      lang,
-      description,
       shifts[] {
         label,
         price
@@ -57,11 +55,47 @@ async function getProgrammsPageData() {
       transferPrice,
       bonusWriteOff,
       bonusCashBack,
+      programs[] {
+        lang,
+        description
+      }
     }
   }`);
-  return {
-    programms: programms.flatMap((item: { programms: Programm[] }) => item.programms)
-  };
+
+  // Преобразуем вложенную структуру в плоский массив Programm[]
+  const programms: Programm[] = [];
+  programmsPages.forEach(
+    (page: {
+      location: string;
+      seasons: Array<{
+        season: Season;
+        shifts: Shift[];
+        prepaymentPrice: number;
+        transferPrice: number;
+        bonusWriteOff: number;
+        bonusCashBack: number;
+        programs: Array<{ lang: string; description: CustomTextBlock[] }>;
+      }>;
+    }) => {
+      page.seasons.forEach((seasonData) => {
+        seasonData.programs.forEach((program) => {
+          programms.push({
+            season: seasonData.season,
+            location: page.location,
+            lang: program.lang,
+            description: program.description,
+            shifts: seasonData.shifts,
+            prepaymentPrice: seasonData.prepaymentPrice,
+            transferPrice: seasonData.transferPrice,
+            bonusWriteOff: seasonData.bonusWriteOff,
+            bonusCashBack: seasonData.bonusCashBack
+          });
+        });
+      });
+    }
+  );
+
+  return { programms };
 }
 async function getData() {
   const merch = await getMerchPageData();

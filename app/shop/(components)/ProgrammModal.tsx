@@ -19,7 +19,7 @@ interface ProgrammModalProps {
 type TransferType = "both-ways" | "one-way" | "no";
 
 export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammModalProps) => {
-  const { season, place, lang, description, shifts, prepaymentPrice, transferPrice, bonusWriteOff, bonusCashBack } =
+  const { season, location, lang, description, shifts, prepaymentPrice, transferPrice, bonusWriteOff, bonusCashBack } =
     programm;
   const [useBonus, setUseBonus] = useState(false);
   const [selectedShiftIndex, setSelectedShiftIndex] = useState(0);
@@ -69,9 +69,9 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
             {
               programm: {
                 season,
-                place,
+                location,
                 lang,
-                description: `${season}. ${place}. ${lang}`,
+                description: `${season}. ${location}. ${lang}`,
                 shifts: selectedShift,
                 prepaymentPrice: paymentType === "prepayment" ? prepaymentPrice : basePrice,
                 transferPrice: transferCost,
@@ -139,7 +139,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
       <motion.div variants={fadeInVariants} initial="initial" animate="animate" className="flex flex-col gap-6">
         {/* Programm Info */}
         <div className="flex flex-col gap-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{`${season}. ${place}. ${lang}`}</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{`${season}. ${location}. ${lang}`}</h1>
           {description && (
             <div className="text-base md:text-lg leading-relaxed">
               <CustomPortableText content={description} />
@@ -212,8 +212,8 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
               onChange={(e) => setTransfer(e.target.value as TransferType)}
               className="w-full p-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 font-medium focus:border-[var(--color-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]/20 transition-all cursor-pointer hover:border-gray-400"
             >
-              <option value="both-ways">До {programm.place} и обратно</option>
-              <option value="one-way">До {programm.place}</option>
+              <option value="both-ways">До {programm.location} и обратно</option>
+              <option value="one-way">До {programm.location}</option>
               <option value="no">Без трансфера</option>
             </select>
           </div>

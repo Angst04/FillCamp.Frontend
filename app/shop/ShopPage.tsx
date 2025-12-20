@@ -97,7 +97,7 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
           className="flex flex-col gap-4"
         >
           {category === "lessons" && lessons.map((item) => <LessonCard key={item.title} {...item} />)}
-          {category === "programms" && programms.map((item) => <ProgrammCard key={item.season} {...item} />)}
+          {category === "programms" && programms.map((item, index) => <ProgrammCard key={`${item.season}-${item.location}-${item.lang}-${index}`} {...item} />)}
         </motion.div>
       )}
     </motion.div>
