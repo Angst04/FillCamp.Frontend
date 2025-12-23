@@ -8,7 +8,7 @@ export default function CoinsDisplay({ coins }: CoinsDisplayProps) {
       <div className="flex items-center justify-center space-x-3">
         <span className="text-3xl">🏆</span>
         <p className="text-[40px] font-bold font-heading" style={{ color: "#ED0000" }}>
-          {coins}
+          {coins.toFixed(2)}
         </p>
       </div>
       <p className="text-xl font-heading" style={{ color: "#101010" }}>

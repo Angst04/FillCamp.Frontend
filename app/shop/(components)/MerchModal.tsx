@@ -58,22 +58,33 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
         config: {}
       },
       {
-        onSuccess: () => {
+        onSuccess: (data: PostOrdersResponse | undefined) => {
           queryClient.invalidateQueries({ queryKey: ["profile"] });
           setQuantity(1);
           setUseBonus(false);
           handleCloseModal();
-          // Показываем успех только после ответа сервера
-          if (webApp) {
-            webApp.showPopup({
-              title: "Успех! 🎉",
-              message: "Покупка успешно совершена!"
-            });
+
+          // Если есть payment_url, перенаправляем на страницу оплаты
+          if (data?.payment_url) {
+            if (webApp) {
+              webApp.openLink(data.payment_url);
+            } else {
+              window.location.href = data.payment_url;
+            }
+          } else {
+            // Показываем успех только после ответа сервера (для оплаты бонусами)
+            if (webApp) {
+              webApp.showPopup({
+                title: "Успех! 🎉",
+                message: "Покупка успешно совершена!"
+              });
+            }
           }
         },
         onError: (error: any) => {
           // Правильная обработка ошибок сервера
-          const errorMessage = error?.error?.detail || error?.message || "Не удалось совершить покупку. Попробуйте еще раз.";
+          const errorMessage =
+            error?.error?.detail || error?.message || "Не удалось совершить покупку. Попробуйте еще раз.";
           if (webApp) {
             webApp.showPopup({
               title: "Ошибка",

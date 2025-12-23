@@ -42,14 +42,12 @@ declare global {
     quantity: number;
     programm?: {
       season: Season;
-      location: string;
+      place: string;
       lang: string;
       description: string;
       shifts: Shift;
       prepaymentPrice: number;
       transferPrice: number;
-      bonusWriteOff: number;
-      bonusCashBack: number;
     };
     merch?: {
       title: string;
@@ -79,6 +77,8 @@ declare global {
     total_bonus: number;
     total_money: number | null;
     status: string;
+    payment_url: string | null;
+    payment_id: string | null;
   };
 }
 export {};

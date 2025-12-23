@@ -69,14 +69,12 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
             {
               programm: {
                 season,
-                location,
+                place: location,
                 lang,
                 description: `${season}. ${location}. ${lang}`,
                 shifts: selectedShift,
                 prepaymentPrice: paymentType === "prepayment" ? prepaymentPrice : basePrice,
-                transferPrice: transferCost,
-                bonusWriteOff,
-                bonusCashBack
+                transferPrice: transferCost
               },
               quantity: 1
             }
@@ -88,19 +86,29 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
         config: {}
       },
       {
-        onSuccess: () => {
+        onSuccess: (data: PostOrdersResponse | undefined) => {
           queryClient.invalidateQueries({ queryKey: ["profile"] });
           setUseBonus(false);
           setSelectedShiftIndex(0);
           setPaymentType("full");
           setTransfer("no");
           handleCloseModal();
-          // Показываем успех только после ответа сервера
-          if (webApp) {
-            webApp.showPopup({
-              title: "Успех! 🎉",
-              message: "Покупка успешно совершена!"
-            });
+
+          // Если есть payment_url, перенаправляем на страницу оплаты
+          if (data?.payment_url) {
+            if (webApp) {
+              webApp.openLink(data.payment_url);
+            } else {
+              window.location.href = data.payment_url;
+            }
+          } else {
+            // Показываем успех только после ответа сервера (для оплаты бонусами)
+            if (webApp) {
+              webApp.showPopup({
+                title: "Успех! 🎉",
+                message: "Покупка успешно совершена!"
+              });
+            }
           }
         },
         onError: (error: any) => {

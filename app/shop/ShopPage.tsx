@@ -8,12 +8,18 @@ import { pageVariants, listContainerVariants } from "@/lib/animations";
 import { MerchCard } from "./(components)/MerchCard";
 import { LessonCard } from "./(components)/LessonCard";
 import { ProgrammCard } from "./(components)/ProgrammCard";
-import { Award } from "lucide-react";
+import { Award, Filter } from "lucide-react";
 import { useGetProfileQuery } from "@/api/hooks/profile/useGetProfileQuery";
+import { Dropdown } from "@/components/Dropdown";
 
 export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
   const [category, setCatery] = useState<Category>("merch");
+  const [selectedLocation, setSelectedLocation] = useState<string>("Все");
   const { data: profile } = useGetProfileQuery();
+  const uniqueLocations = [...new Set(programms.map((item) => item.location))];
+
+  const filteredProgramms =
+    selectedLocation !== "Все" ? programms.filter((item) => item.location === selectedLocation) : programms;
 
   return (
     <motion.div
@@ -76,6 +82,22 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
           Программы
         </Button>
       </motion.div>
+      {category === "programms" && (
+        <Dropdown>
+          <Dropdown.Trigger>
+            <Filter size={20} />
+            {selectedLocation}
+          </Dropdown.Trigger>
+          <Dropdown.Menu>
+            <Dropdown.Item onSelect={() => setSelectedLocation("Все")}>Все</Dropdown.Item>
+            {uniqueLocations.map((location) => (
+              <Dropdown.Item key={location} onSelect={() => setSelectedLocation(location)}>
+                {location}
+              </Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      )}
 
       {/* Каталог товаров */}
       {category === "merch" ? (
@@ -97,7 +119,10 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
           className="flex flex-col gap-4"
         >
           {category === "lessons" && lessons.map((item) => <LessonCard key={item.title} {...item} />)}
-          {category === "programms" && programms.map((item, index) => <ProgrammCard key={`${item.season}-${item.location}-${item.lang}-${index}`} {...item} />)}
+          {category === "programms" &&
+            filteredProgramms.map((item, index) => (
+              <ProgrammCard key={`${item.season}-${item.location}-${item.lang}-${index}`} {...item} />
+            ))}
         </motion.div>
       )}
     </motion.div>
