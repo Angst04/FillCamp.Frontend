@@ -2,6 +2,7 @@
 
 import { useTelegram } from "@/context/TelegramProvider";
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import PageHeader from "@/components/PageHeader";
 import CoinsDisplay from "@/app/game/(components)/CoinsDisplay";
 import GameButton from "@/app/game/(components)/GameButton";
@@ -10,6 +11,7 @@ import { motion } from "motion/react";
 import { pageVariants } from "@/lib/animations";
 import { useGameWebSocket } from "@/api/hooks/game/useGameWebSocket";
 import { useGetGameStateQuery } from "@/api/hooks/game/useGetGameStateQuery";
+import { useUserQuery } from "@/api/hooks/user/useUserQuery";
 
 const COINS_PER_TAP = 0.05;
 const CLICK_ANIMATION_DURATION = 1000;
@@ -22,10 +24,24 @@ interface ClickAnimation {
 }
 
 export const GamePage = () => {
-  const { user, webApp } = useTelegram();
+  const { user: telegramUser, webApp } = useTelegram();
+  const { user } = useUserQuery();
   const { data: gameState, isLoading } = useGetGameStateQuery();
+  const router = useRouter();
 
-  const telegramId = user?.id ?? 1;
+  // Redirect parents to home page
+  useEffect(() => {
+    if (user?.role === "parent") {
+      router.replace("/");
+    }
+  }, [user?.role, router]);
+
+  // Don't render game for parents
+  if (user?.role === "parent") {
+    return null;
+  }
+
+  const telegramId = telegramUser?.id ?? 1;
 
   // Wait for game state to load before initializing WebSocket
   const initialCoins = gameState?.data?.new_bonus_balance ?? 0;

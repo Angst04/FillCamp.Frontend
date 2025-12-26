@@ -10,37 +10,60 @@ import { usePostUserMutations } from "@/api/hooks/user/usePostUserMutations";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-// Test data for local development outside of Telegram
-const getTestData = (role: UserRole) => ({
-  telegramId: role === "parent" ? 1 : 2,
-  firstName: role === "parent" ? "Test Parent" : "Test Child",
-  lastName: role === "parent" ? "Parentov" : "Childov",
-  username: role === "parent" ? "test_parent" : "test_child",
-  phone: role === "parent" ? "+71111111111" : "+72222222222"
-});
+// Development mode: when webApp is null, use mock data
+const isDevelopment = process.env.NODE_ENV === "development";
 
 export const LoginPage = () => {
   const [role, setRole] = useState<UserRole>("child");
   const [isError, setIsError] = useState<string | undefined>(undefined);
   const [parentTelegramId, setParentTelegramId] = useState<string>("");
   const { mutateAsync: postUser } = usePostUserMutations();
-  const { webApp } = useTelegram();
+  const { webApp, user: telegramContextUser } = useTelegram();
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  // Check if we're running inside Telegram (real Telegram user has all these properties)
-  const isInTelegram = Boolean(webApp?.initDataUnsafe?.user?.id);
-
   const handleTelegramRegistration = async () => {
-    if (!webApp) {
-      setIsError("Telegram WebApp не инициализирован");
+    // In development mode without Telegram, use mock user from context
+    const isDevMode = isDevelopment && !webApp;
+    const telegramUser = isDevMode ? telegramContextUser : webApp?.initDataUnsafe?.user;
+
+    if (!telegramUser?.id) {
+      setIsError("Не удалось получить данные пользователя из Telegram");
       return;
     }
 
-    // Verify we have real Telegram user data
-    const telegramUser = webApp.initDataUnsafe?.user;
-    if (!telegramUser?.id) {
-      setIsError("Не удалось получить данные пользователя из Telegram");
+    const telegramId = telegramUser.id.toString();
+
+    // In development mode, skip contact request and use mock phone
+    if (isDevMode) {
+      const registeredUser = await postUser({
+        params: {
+          first_name: telegramUser.first_name ?? "Тестовый",
+          last_name: telegramUser.last_name ?? "Тестовый",
+          username: telegramUser.username ?? "test_user",
+          phone: "+70000000000", // Mock phone for development
+          parent_telegram_id: parentTelegramId ? Number(parentTelegramId) : undefined,
+          is_child: role === "child"
+        },
+        config: {
+          headers: {
+            "X-Telegram-Id": telegramId
+          }
+        }
+      });
+
+      if (registeredUser.success && registeredUser.data) {
+        await queryClient.invalidateQueries({ queryKey: ["user", telegramId] });
+        router.push("/");
+      } else {
+        setIsError(`Ошибка при регистрации пользователя ${registeredUser.error?.detail}`);
+      }
+      return;
+    }
+
+    // Production mode: request contact from Telegram
+    if (!webApp) {
+      setIsError("Telegram WebApp не инициализирован");
       return;
     }
 
@@ -50,22 +73,17 @@ export const LoginPage = () => {
         return;
       }
 
-      // Get phone number from contact (required)
       const phoneNumber = response.responseUnsafe.contact.phone_number;
       if (!phoneNumber) {
         setIsError("Не удалось получить номер телефона");
         return;
       }
 
-      const telegramId = telegramUser.id.toString();
-
-      // Use real Telegram data: first_name, last_name, username from Telegram user
-      // Phone comes from contact (required for registration)
       const registeredUser = await postUser({
         params: {
-          first_name: telegramUser.first_name ?? "",
-          last_name: telegramUser.last_name ?? undefined,
-          username: telegramUser.username ?? undefined,
+          first_name: telegramUser.first_name ?? "Тестовый",
+          last_name: telegramUser.last_name ?? "Тестовый",
+          username: telegramUser.username ?? "test_user",
           phone: phoneNumber,
           parent_telegram_id: parentTelegramId ? Number(parentTelegramId) : undefined,
           is_child: role === "child"
@@ -78,77 +96,18 @@ export const LoginPage = () => {
       });
 
       if (registeredUser.success && registeredUser.data) {
-        const setCookieResponse = await fetch("/api/logIn", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Telegram-Id": telegramId
-          },
-          body: JSON.stringify({
-            phoneNumber: phoneNumber,
-            role: registeredUser.data.role
-          })
-        });
-
-        if (setCookieResponse.ok) {
-          // Clear cache on login to ensure fresh data for the new user
-          queryClient.clear();
-          // Notify TelegramProvider to update mock user
-          window.dispatchEvent(new Event("auth-changed"));
-          // Small delay to allow TelegramProvider to update before navigation
-          await new Promise((resolve) => setTimeout(resolve, 1));
-          router.push("/");
-        } else {
-          setIsError(`Ошибка при сохранении сессии ${setCookieResponse.statusText}`);
-        }
+        await queryClient.invalidateQueries({ queryKey: ["user", telegramId] });
+        router.push("/");
       } else {
         setIsError(`Ошибка при регистрации пользователя ${registeredUser.error?.detail}`);
       }
     });
   };
 
-  const handleLocalTestRegistration = async () => {
-    const testData = getTestData(role);
-
-    const user = await postUser({
-      params: {
-        first_name: testData.firstName,
-        last_name: testData.lastName,
-        username: testData.username,
-        phone: testData.phone,
-        is_child: role === "child",
-        parent_telegram_id: parentTelegramId ? Number(parentTelegramId) : undefined
-      },
-      config: {
-        headers: {
-          "X-Telegram-Id": testData.telegramId.toString()
-        }
-      }
-    });
-
-    if (user.success && user.data) {
-      const setCookieResponse = await fetch("/api/logIn", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Telegram-Id": testData.telegramId.toString()
-        },
-        body: JSON.stringify({
-          phoneNumber: testData.phone,
-          role: user.data.role
-        })
-      });
-
-      if (setCookieResponse.ok) {
-        // Clear cache on login to ensure fresh data for the new user
-        queryClient.clear();
-        // Notify TelegramProvider to update mock user
-        window.dispatchEvent(new Event("auth-changed"));
-        // Small delay to allow TelegramProvider to update before navigation
-        await new Promise((resolve) => setTimeout(resolve, 1));
-        router.push("/");
-      }
-    }
+  const handleRoleChange = (newRole: UserRole) => {
+    setRole(newRole);
+    setParentTelegramId("");
+    setIsError(undefined);
   };
 
   const handleContinue = async () => {
@@ -166,13 +125,7 @@ export const LoginPage = () => {
 
     setIsError(undefined);
 
-    if (isInTelegram) {
-      await handleTelegramRegistration();
-    } else {
-      // Local testing fallback: Parent = ID 1, Child = ID 2
-      console.log(`[DEV MODE] Registering as ${role} with Telegram ID: ${role === "parent" ? 1 : 2}`);
-      await handleLocalTestRegistration();
-    }
+    await handleTelegramRegistration();
   };
 
   return (
@@ -185,7 +138,7 @@ export const LoginPage = () => {
       <div className="flex flex-row items-center justify-center mb-4 gap-2">
         <Button
           variant={role === "child" ? "primary" : "secondary"}
-          onClick={() => setRole("child")}
+          onClick={() => handleRoleChange("child")}
           className="rounded-[18px]  text-lg font-bold leading-[1.1] text-white flex items-center justify-center gap-2"
         >
           <User size={12} />
@@ -193,7 +146,7 @@ export const LoginPage = () => {
         </Button>
         <Button
           variant={role === "parent" ? "primary" : "secondary"}
-          onClick={() => setRole("parent")}
+          onClick={() => handleRoleChange("parent")}
           className="rounded-[18px]  text-lg font-bold leading-[1.1] text-white flex items-center justify-center gap-2"
         >
           <User size={18} />

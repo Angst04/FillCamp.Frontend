@@ -37,12 +37,23 @@ declare global {
     is_child: boolean;
     parent_telegram_id?: number;
   };
-  
+
   type PostUserResponse = {
     telegram_id: number;
     first_name: string | null;
     last_name: string | null;
     username: string | null;
+    role: UserRole;
+    parent_telegram_id: number | null;
+    created_at: string;
+    updated_at: string;
+  };
+
+  type GetUserResponse = {
+    telegram_id: number;
+    first_name: string;
+    last_name: string;
+    username: string;
     role: UserRole;
     parent_telegram_id: number | null;
     created_at: string;

@@ -2,6 +2,7 @@ import { groq } from "next-sanity";
 import { ShopPage } from "./ShopPage";
 import { Metadata } from "next";
 import { client } from "@/sanity/client";
+import { AuthGuard } from "@/components/AuthGuard";
 
 export const revalidate = 300;
 
@@ -105,5 +106,9 @@ async function getData() {
 }
 export default async function Page() {
   const { merch, lessons, programms } = await getData();
-  return <ShopPage merch={merch.merch} lessons={lessons.lessons} programms={programms.programms} />;
+  return (
+    <AuthGuard>
+      <ShopPage merch={merch.merch} lessons={lessons.lessons} programms={programms.programms} />
+    </AuthGuard>
+  );
 }

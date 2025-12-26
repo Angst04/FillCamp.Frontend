@@ -16,40 +16,21 @@ import { useGetProfileQuery } from "@/api/hooks/profile/useGetProfileQuery";
 import { Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 
-interface ProfilePageProps {
-  initialProfile?: GetProfileResponse;
-}
-
-export const ProfilePage = ({ initialProfile }: ProfilePageProps) => {
+export const ProfilePage = () => {
   const { user } = useTelegram();
   const { data: profile } = useGetProfileQuery();
   const queryClient = useQueryClient();
 
-  // Use server-fetched data as fallback, client data takes priority
-  const profileData = profile?.data ?? initialProfile;
+  const profileData = profile?.data;
 
   const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch("/api/logOut", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        }
-      });
-      if (response.ok) {
-        // Clear all React Query cache on logout
-        queryClient.clear();
-        // Notify TelegramProvider to update mock user
-        window.dispatchEvent(new Event("auth-changed"));
-        // Small delay to allow TelegramProvider to update before navigation
-        await new Promise((resolve) => setTimeout(resolve, 1));
-        router.push("/login");
-      }
-    } catch (error) {
-      console.error(error);
-    }
+  const handleLogout = () => {
+    // Clear all React Query cache on logout
+    queryClient.clear();
+    // Refresh router to clear server-side cache
+    router.refresh();
+    router.push("/login");
   };
 
   return (

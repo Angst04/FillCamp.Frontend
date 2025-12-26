@@ -30,10 +30,10 @@ export function formatShortDate(date: string | Date): string {
 }
 
 // Проверка на мобильное устройство
-export function isMobile(): boolean {
+export const isMobileDevice = (): boolean => {
   if (typeof window === "undefined") return false;
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-}
+};
 
 // Задержка
 export function delay(ms: number): Promise<void> {

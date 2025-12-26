@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { ReferralsPage } from "./ReferralsPage";
+import { AuthGuard } from "@/components/AuthGuard";
 
 export const metadata: Metadata = {
   title: "Пригласи друзей",
@@ -7,5 +8,9 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <ReferralsPage />;
+  return (
+    <AuthGuard>
+      <ReferralsPage />
+    </AuthGuard>
+  );
 }

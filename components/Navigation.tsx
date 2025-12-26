@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, User, Gamepad2, ShoppingCart, Users } from "lucide-react";
 import { motion } from "motion/react";
 import { navItemVariants, navIconVariants, spring } from "@/lib/animations";
-import { useAuth } from "@/hooks/useAuth";
+import { useUserQuery } from "@/api/hooks/user/useUserQuery";
 import { useMemo } from "react";
 
 const allNavItems = [
@@ -18,16 +18,16 @@ const allNavItems = [
 
 export default function Navigation() {
   const pathname = usePathname();
-  const { data: authData } = useAuth();
+  const { user } = useUserQuery();
 
   const navItems = useMemo(() => {
-    if (!authData?.role) return allNavItems;
+    if (!user?.role) return allNavItems;
 
     return allNavItems.filter((item) => {
       if (!item.hideForRoles) return true;
-      return !item.hideForRoles.includes(authData?.role ?? "");
+      return !item.hideForRoles.includes(user.role);
     });
-  }, [authData?.role]);
+  }, [user?.role]);
 
   if (pathname === "/login") {
     return null;

@@ -2,6 +2,7 @@ import { client } from "@/sanity/client";
 import { groq } from "next-sanity";
 import { MainPage } from "./MainPage";
 import { Metadata } from "next";
+import { AuthGuard } from "@/components/AuthGuard";
 
 export const revalidate = 300;
 
@@ -37,7 +38,11 @@ async function getNewsPageData() {
 export default async function Page() {
   try {
     const newsPageData = await getNewsPageData();
-    return <MainPage news={newsPageData.news} />;
+    return (
+      <AuthGuard>
+        <MainPage news={newsPageData.news} />
+      </AuthGuard>
+    );
   } catch (error) {
     console.error(error);
     return <div className="text-red-500 text-center text-2xl font-bold">Не удалось загрузить новости</div>;
