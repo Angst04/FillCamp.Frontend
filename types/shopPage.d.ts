@@ -38,7 +38,6 @@ declare global {
   }
 
   type PostOrdersRequestItem = {
-    item?: number;
     quantity: number;
     programm?: {
       season: Season;
@@ -48,6 +47,7 @@ declare global {
       shifts: Shift;
       prepaymentPrice: number;
       transferPrice: number;
+      bonusCashBack: number;
     };
     merch?: {
       title: string;

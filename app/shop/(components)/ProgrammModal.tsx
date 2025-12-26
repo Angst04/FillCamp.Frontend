@@ -74,7 +74,8 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
                 description: `${season}. ${location}. ${lang}`,
                 shifts: selectedShift,
                 prepaymentPrice: paymentType === "prepayment" ? prepaymentPrice : basePrice,
-                transferPrice: transferCost
+                transferPrice: transferCost,
+                bonusCashBack
               },
               quantity: 1
             }
