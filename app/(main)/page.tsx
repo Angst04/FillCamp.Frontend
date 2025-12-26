@@ -36,15 +36,10 @@ async function getNewsPageData() {
 }
 
 export default async function Page() {
-  try {
-    const newsPageData = await getNewsPageData();
-    return (
-      <AuthGuard>
-        <MainPage news={newsPageData.news} />
-      </AuthGuard>
-    );
-  } catch (error) {
-    console.error(error);
-    return <div className="text-red-500 text-center text-2xl font-bold">Не удалось загрузить новости</div>;
-  }
+  const newsPageData = await getNewsPageData();
+  return (
+    <AuthGuard>
+      <MainPage news={newsPageData.news} />
+    </AuthGuard>
+  );
 }
