@@ -17,6 +17,7 @@ declare global {
     transferPrice: number;
     bonusWriteOff: number;
     bonusCashBack: number;
+    image: SanityImage;
   }
 
   interface Merch {

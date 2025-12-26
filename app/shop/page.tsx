@@ -56,6 +56,20 @@ async function getProgrammsPageData() {
       transferPrice,
       bonusWriteOff,
       bonusCashBack,
+      image{
+        asset->{
+          _id,
+          url,
+          metadata {
+            dimensions {
+              width,
+              height,
+              aspectRatio
+            }
+          }
+        },
+        alt
+      },
       programs[] {
         lang,
         description
@@ -75,6 +89,7 @@ async function getProgrammsPageData() {
         transferPrice: number;
         bonusWriteOff: number;
         bonusCashBack: number;
+        image: SanityImage;
         programs: Array<{ lang: string; description: CustomTextBlock[] }>;
       }>;
     }) => {
@@ -89,7 +104,8 @@ async function getProgrammsPageData() {
             prepaymentPrice: seasonData.prepaymentPrice,
             transferPrice: seasonData.transferPrice,
             bonusWriteOff: seasonData.bonusWriteOff,
-            bonusCashBack: seasonData.bonusCashBack
+            bonusCashBack: seasonData.bonusCashBack,
+            image: seasonData.image
           });
         });
       });
