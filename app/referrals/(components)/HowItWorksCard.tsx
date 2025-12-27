@@ -19,8 +19,8 @@ export default function HowItWorksCard({ bonusPerReferral }: HowItWorksCardProps
         />
         <StepItem
           number={2}
-          title="Друг регистрируется"
-          description="Твой друг переходит по ссылке и регистрируется"
+          title="Друг едет на смену"
+          description="Твой друг покупает понравившуюся смену"
           color="text-[#0048F2]"
           bgColor="bg-[#DDB4FF]"
         />

@@ -31,7 +31,9 @@ export const Button = ({
   className = "",
   type = "button"
 }: ButtonProps) => {
-  const baseStyles = "py-4 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed";
+  const baseStyles = variant === "icon" 
+    ? "font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+    : "py-4 rounded-2xl font-semibold disabled:opacity-50 disabled:cursor-not-allowed";
   const widthClass = variant === "icon" ? "" : "w-full";
 
   return (

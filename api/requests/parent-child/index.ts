@@ -1,7 +1,7 @@
 import { api } from "../../instance";
 
 type GetParentChildConfig = FetchRequestConfig;
-type GetParentChildResponse = {
+export type GetParentChildResponse = {
   id: number;
   child: {
     id: number;

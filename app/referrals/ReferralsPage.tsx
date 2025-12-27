@@ -48,7 +48,7 @@ export const ReferralsPage = () => {
       <PageHeader title="Пригласи друзей" emoji="🎁" centered />
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
-        <BonusCard bonusPerReferral={100} />
+        <BonusCard bonusPerReferral={2000} />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
@@ -68,7 +68,7 @@ export const ReferralsPage = () => {
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <HowItWorksCard bonusPerReferral={100} />
+        <HowItWorksCard bonusPerReferral={2000} />
       </motion.div>
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>

@@ -15,10 +15,13 @@ import { useRouter } from "next/navigation";
 import { useGetProfileQuery } from "@/api/hooks/profile/useGetProfileQuery";
 import { Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useGetParentChildRequestsQuery } from "@/api/hooks/parent-child/useGetParentChildRequestsQuery";
+import PendingChilds from "./(components)/PendingChilds";
 
 export const ProfilePage = () => {
   const { user } = useTelegram();
   const { data: profile } = useGetProfileQuery();
+  const { data: parentChildRequests } = useGetParentChildRequestsQuery();
   const queryClient = useQueryClient();
 
   const profileData = profile?.data;
@@ -140,6 +143,23 @@ export const ProfilePage = () => {
             <div className="mb-6">
               <Suspense fallback={<div>Loading...</div>}>
                 <ParentInfoCard childrenList={profileData?.linked_children_info ?? []} />
+              </Suspense>
+            </div>
+          </motion.div>
+        )}
+
+        {profileData?.role === "parent" && (
+          <motion.div
+            key="parent-requests-view"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ delay: 0.45 }}
+          >
+            <h2 className="text-xl font-bold mb-4">Ожидающие запросы</h2>
+            <div className="mb-6">
+              <Suspense fallback={<div>Loading...</div>}>
+                <PendingChilds parentChildRequests={parentChildRequests ?? []} />
               </Suspense>
             </div>
           </motion.div>
