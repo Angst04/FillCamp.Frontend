@@ -16,7 +16,7 @@ export const ReferralsPage = () => {
   const { data: referrals } = useGetReferralsQuery();
 
   const handleShare = () => {
-    const shareText = `Присоединяйся к нашему лагерю! Используй мою реферальную ссылку и получи бонусы!}`;
+    const shareText = `Присоединяйся к нашему лагерю! Используй мою реферальную ссылку и получи 2000 бонусов!✨`;
 
     if (webApp) {
       // Используем Telegram Share
