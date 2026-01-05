@@ -32,7 +32,7 @@ export const ProgrammCard = (props: Programm) => {
         <CustomPortableText content={description} />
         <Image
           src={image.asset.url}
-          alt={image.alt}
+          alt={image.alt || `${season}. ${location}. ${lang}`}
           width={image.asset.metadata.dimensions.width}
           height={image.asset.metadata.dimensions.height}
           className="object-cover rounded-2xl w-full mb-4"

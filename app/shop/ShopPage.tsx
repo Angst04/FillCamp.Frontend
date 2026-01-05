@@ -8,18 +8,39 @@ import { pageVariants, listContainerVariants } from "@/lib/animations";
 import { MerchCard } from "./(components)/MerchCard";
 import { LessonCard } from "./(components)/LessonCard";
 import { ProgrammCard } from "./(components)/ProgrammCard";
-import { Award, Filter } from "lucide-react";
+import { Award, Languages, MapPin, Snowflake } from "lucide-react";
 import { useGetProfileQuery } from "@/api/hooks/profile/useGetProfileQuery";
 import { Dropdown } from "@/components/Dropdown";
 
 export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
   const [category, setCatery] = useState<Category>("merch");
-  const [selectedLocation, setSelectedLocation] = useState<string>("Все");
+  const [selectedLocation, setSelectedLocation] = useState<string | "Все">("Все");
+  const [selectedSeason, setSelectedSeason] = useState<string | "Все">("Все");
+  const [selectedFormat, setSelectedFormat] = useState<string | "Все">("Все");
   const { data: profile } = useGetProfileQuery();
-  const uniqueLocations = [...new Set(programms.map((item) => item.location))];
 
-  const filteredProgramms =
-    selectedLocation !== "Все" ? programms.filter((item) => item.location === selectedLocation) : programms;
+  const toKey = (value: string) => value.trim().toLowerCase();
+
+  const uniqueLocations = Array.from(
+    new Map(programms.map((item) => [toKey(item.location), item.location.trim()])).values()
+  );
+  const uniqueSeasons = Array.from(
+    new Map(programms.map((item) => [toKey(String(item.season)), String(item.season).trim()])).values()
+  );
+  const uniqueFormats = Array.from(new Map(programms.map((item) => [toKey(item.lang), item.lang.trim()])).values());
+
+  const handleResetFilters = () => {
+    setSelectedLocation("Все");
+    setSelectedSeason("Все");
+    setSelectedFormat("Все");
+  };
+
+  const filteredProgramms = programms.filter((item) => {
+    const matchesLocation = selectedLocation === "Все" || toKey(item.location) === toKey(selectedLocation);
+    const matchesSeason = selectedSeason === "Все" || toKey(String(item.season)) === toKey(String(selectedSeason));
+    const matchesFormat = selectedFormat === "Все" || toKey(item.lang) === toKey(selectedFormat);
+    return matchesLocation && matchesSeason && matchesFormat;
+  });
 
   return (
     <motion.div
@@ -83,20 +104,77 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
         </Button>
       </motion.div>
       {category === "programms" && (
-        <Dropdown>
-          <Dropdown.Trigger>
-            <Filter size={20} />
-            {selectedLocation}
-          </Dropdown.Trigger>
-          <Dropdown.Menu>
-            <Dropdown.Item onSelect={() => setSelectedLocation("Все")}>Все</Dropdown.Item>
-            {uniqueLocations.map((location) => (
-              <Dropdown.Item key={location} onSelect={() => setSelectedLocation(location)}>
-                {location}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
+        <div className="flex flex-wrap">
+          <div className="flex-1 min-w-[200px]">
+            <Dropdown>
+              <Dropdown.Trigger className="w-full justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin size={18} />
+                  <span className="text-sm">Локация</span>
+                </div>
+                <span className="text-sm font-medium">{selectedLocation}</span>
+              </Dropdown.Trigger>
+              <Dropdown.Menu>
+                <Dropdown.Item onSelect={() => setSelectedLocation("Все")}>Все</Dropdown.Item>
+                {uniqueLocations.map((location) => (
+                  <Dropdown.Item key={location} onSelect={() => setSelectedLocation(location)}>
+                    {location}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+
+          <div className="flex-1 min-w-[200px]">
+            <Dropdown>
+              <Dropdown.Trigger className="w-full justify-between">
+                <div className="flex items-center gap-2">
+                  <Snowflake size={18} />
+                  <span className="text-sm">Сезон</span>
+                </div>
+                <span className="text-sm font-medium">{selectedSeason}</span>
+              </Dropdown.Trigger>
+              <Dropdown.Menu>
+                <Dropdown.Item onSelect={() => setSelectedSeason("Все")}>Все</Dropdown.Item>
+                {uniqueSeasons.map((season) => (
+                  <Dropdown.Item key={season} onSelect={() => setSelectedSeason(season)}>
+                    {season}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+          <div className="flex-1 min-w-[200px]">
+            <Dropdown>
+              <Dropdown.Trigger className="w-full justify-between">
+                <div className="flex items-center gap-2">
+                  <Languages size={18} />
+                  <span className="text-sm">Формат</span>
+                </div>
+                <span className="text-sm font-medium">{selectedFormat}</span>
+              </Dropdown.Trigger>
+              <Dropdown.Menu>
+                <Dropdown.Item onSelect={() => setSelectedFormat("Все")}>Все</Dropdown.Item>
+                {uniqueFormats.map((format) => (
+                  <Dropdown.Item key={format} onSelect={() => setSelectedFormat(format)}>
+                    {format}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+          <div className="w-full">
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={handleResetFilters}
+              disabled={selectedLocation === "Все" && selectedSeason === "Все" && selectedFormat === "Все"}
+              aria-label="Сбросить все фильтры"
+            >
+              Сбросить фильтры
+            </Button>
+          </div>
+        </div>
       )}
 
       {/* Каталог товаров */}
@@ -120,8 +198,18 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
         >
           {category === "lessons" && lessons.map((item) => <LessonCard key={item.title} {...item} />)}
           {category === "programms" &&
-            filteredProgramms.map((item, index) => (
-              <ProgrammCard key={`${item.season}-${item.location}-${item.lang}-${index}`} {...item} />
+            (filteredProgramms.length === 0 ? (
+              <div className="bg-white rounded-2xl shadow-sm p-6 text-center">
+                <p className="text-[#101010] font-bold">По выбранным фильтрам программ не найдено</p>
+                <p className="text-sm text-black/60 mt-1">Попробуйте изменить фильтры или сбросить их.</p>
+                <Button variant="secondary" className="w-full mt-4" onClick={handleResetFilters}>
+                  Сбросить фильтры
+                </Button>
+              </div>
+            ) : (
+              filteredProgramms.map((item, index) => (
+                <ProgrammCard key={`${item.season}-${item.location}-${item.lang}-${index}`} {...item} />
+              ))
             ))}
         </motion.div>
       )}
