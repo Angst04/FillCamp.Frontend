@@ -104,7 +104,7 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
         </Button>
       </motion.div>
       {category === "programms" && (
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap mb-6">
           <div className="flex-1 min-w-[200px]">
             <Dropdown>
               <Dropdown.Trigger className="w-full justify-between">
@@ -202,9 +202,6 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
               <div className="bg-white rounded-2xl shadow-sm p-6 text-center">
                 <p className="text-[#101010] font-bold">По выбранным фильтрам программ не найдено</p>
                 <p className="text-sm text-black/60 mt-1">Попробуйте изменить фильтры или сбросить их.</p>
-                <Button variant="secondary" className="w-full mt-4" onClick={handleResetFilters}>
-                  Сбросить фильтры
-                </Button>
               </div>
             ) : (
               filteredProgramms.map((item, index) => (
