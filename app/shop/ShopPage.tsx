@@ -110,9 +110,8 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
               <Dropdown.Trigger className="w-full justify-between">
                 <div className="flex items-center gap-2">
                   <MapPin size={18} />
-                  <span className="text-sm">Локация</span>
                 </div>
-                <span className="text-sm font-medium">{selectedLocation}</span>
+                <span className="text-sm font-medium truncate">{selectedLocation}</span>
               </Dropdown.Trigger>
               <Dropdown.Menu>
                 <Dropdown.Item onSelect={() => setSelectedLocation("Все")}>Все</Dropdown.Item>
@@ -130,9 +129,8 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
               <Dropdown.Trigger className="w-full justify-between">
                 <div className="flex items-center gap-2">
                   <Snowflake size={18} />
-                  <span className="text-sm">Сезон</span>
                 </div>
-                <span className="text-sm font-medium">{selectedSeason}</span>
+                <span className="text-sm font-medium truncate">{selectedSeason}</span>
               </Dropdown.Trigger>
               <Dropdown.Menu>
                 <Dropdown.Item onSelect={() => setSelectedSeason("Все")}>Все</Dropdown.Item>
@@ -149,9 +147,8 @@ export const ShopPage = ({ merch, lessons, programms }: ShopPageProps) => {
               <Dropdown.Trigger className="w-full justify-between">
                 <div className="flex items-center gap-2">
                   <Languages size={18} />
-                  <span className="text-sm">Формат</span>
                 </div>
-                <span className="text-sm font-medium">{selectedFormat}</span>
+                <span className="text-sm font-medium truncate">{selectedFormat}</span>
               </Dropdown.Trigger>
               <Dropdown.Menu>
                 <Dropdown.Item onSelect={() => setSelectedFormat("Все")}>Все</Dropdown.Item>
