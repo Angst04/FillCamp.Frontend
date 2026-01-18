@@ -222,7 +222,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
               className="w-full p-3 rounded-xl border-2 border-gray-300 bg-white text-gray-900 font-medium focus:border-[var(--color-secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-secondary)]/20 transition-all cursor-pointer hover:border-gray-400"
             >
               <option value="both-ways">До {programm.location} и обратно</option>
-              <option value="one-way">До {programm.location}</option>
+              <option value="one-way">В одну сторону</option>
               <option value="no">Без трансфера</option>
             </select>
           </div>
