@@ -55,7 +55,9 @@ async function getProgrammsPageData() {
       prepaymentPrice,
       transferPrice,
       bonusWriteOff,
+      bonusWriteOffPercent,
       bonusCashBack,
+      bonusCashBackPercent,
       image{
         asset->{
           _id,
@@ -88,7 +90,9 @@ async function getProgrammsPageData() {
         prepaymentPrice: number;
         transferPrice: number;
         bonusWriteOff: number;
+        bonusWriteOffPercent?: number;
         bonusCashBack: number;
+        bonusCashBackPercent?: number;
         image: SanityImage;
         programs: Array<{ lang: string; description: CustomTextBlock[] }>;
       }>;
@@ -104,7 +108,9 @@ async function getProgrammsPageData() {
             prepaymentPrice: seasonData.prepaymentPrice,
             transferPrice: seasonData.transferPrice,
             bonusWriteOff: seasonData.bonusWriteOff,
+            bonusWriteOffPercent: seasonData.bonusWriteOffPercent,
             bonusCashBack: seasonData.bonusCashBack,
+            bonusCashBackPercent: seasonData.bonusCashBackPercent,
             image: seasonData.image
           });
         });

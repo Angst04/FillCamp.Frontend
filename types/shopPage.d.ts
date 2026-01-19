@@ -16,7 +16,9 @@ declare global {
     prepaymentPrice: number;
     transferPrice: number;
     bonusWriteOff: number;
+    bonusWriteOffPercent?: number;
     bonusCashBack: number;
+    bonusCashBackPercent?: number;
     image: SanityImage;
   }
 
@@ -48,7 +50,6 @@ declare global {
       shifts: Shift;
       prepaymentPrice: number;
       transferPrice: number;
-      bonusCashBack: number;
     };
     merch?: {
       title: string;
@@ -67,6 +68,7 @@ declare global {
     pay_with_bonus: boolean;
     price: number;
     bonuses: number;
+    cashback?: number;
   };
 
   type PostOrdersResponse = {
@@ -82,4 +84,4 @@ declare global {
     payment_id: string | null;
   };
 }
-export {};
+export { };

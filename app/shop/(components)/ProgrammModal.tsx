@@ -4,11 +4,11 @@ import { motion } from "motion/react";
 import { fadeInVariants } from "@/lib/animations";
 import { useState } from "react";
 import { useTelegram } from "@/context/TelegramProvider";
-import { calculateFinalPrice } from "@/lib/utils";
 import { CustomPortableText } from "@/components/CustomPortableText";
 import { usePostOrderMutation } from "@/api/hooks/shop/usePostOrderMutation";
 import { useGetProfileQuery } from "@/api/hooks/profile/useGetProfileQuery";
 import { useQueryClient } from "@tanstack/react-query";
+import { useProgrammPriceCalculation } from "@/hooks/useProgrammPriceCalculation";
 
 interface ProgrammModalProps {
   isOpen: boolean;
@@ -19,8 +19,19 @@ interface ProgrammModalProps {
 type TransferType = "both-ways" | "one-way" | "no";
 
 export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammModalProps) => {
-  const { season, location, lang, description, shifts, prepaymentPrice, transferPrice, bonusWriteOff, bonusCashBack } =
-    programm;
+  const {
+    season,
+    location,
+    lang,
+    description,
+    shifts,
+    prepaymentPrice,
+    transferPrice,
+    bonusWriteOff,
+    bonusWriteOffPercent,
+    bonusCashBack,
+    bonusCashBackPercent
+  } = programm;
   const [useBonus, setUseBonus] = useState(false);
   const [selectedShiftIndex, setSelectedShiftIndex] = useState(0);
   const [paymentType, setPaymentType] = useState<"prepayment" | "full">("full");
@@ -33,12 +44,27 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const bonusBalance = profile?.data?.bonus_balance ?? 0;
 
   const selectedShift = shifts && shifts.length > 0 ? shifts[selectedShiftIndex] : null;
-  const basePrice = selectedShift ? selectedShift.price : 0;
 
-  // Calculate transfer cost based on selected transfer type
-  const transferCost = transfer === "both-ways" ? transferPrice * 2 : transfer === "one-way" ? transferPrice : 0;
-
-  const totalPrice = (paymentType === "prepayment" ? prepaymentPrice : basePrice) + transferCost;
+  const {
+    basePrice,
+    transferCost,
+    totalPrice,
+    finalPrice,
+    calculateBonusCashBack,
+    calculateOrderValues
+  } = useProgrammPriceCalculation({
+    selectedShift,
+    paymentType,
+    prepaymentPrice,
+    transfer,
+    transferPrice,
+    useBonus,
+    bonusBalance,
+    bonusWriteOff,
+    bonusWriteOffPercent,
+    bonusCashBack,
+    bonusCashBackPercent
+  });
 
   const purchase = async () => {
     if (!selectedShift) {
@@ -51,16 +77,12 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
       return;
     }
 
-    const maxBonusToUse = useBonus ? Math.min(bonusBalance, totalPrice, bonusWriteOff) : 0;
-
-    const finalTotal = calculateFinalPrice({
-      price: totalPrice,
-      quantity: 1,
-      bonusPoints: maxBonusToUse,
-      useBonus
-    });
-
-    const bonusUsed = maxBonusToUse;
+    const {
+      finalTotal,
+      bonusUsed,
+      calculatedBonusCashBack,
+      baseOrderPrice
+    } = calculateOrderValues();
 
     createOrder(
       {
@@ -73,16 +95,17 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
                 lang,
                 description: `${season}. ${location}. ${lang}`,
                 shifts: selectedShift,
-                prepaymentPrice: paymentType === "prepayment" ? prepaymentPrice : basePrice,
+                prepaymentPrice: baseOrderPrice,
                 transferPrice: transferCost,
-                bonusCashBack
               },
               quantity: 1
             }
           ],
           pay_with_bonus: useBonus,
           price: finalTotal,
-          bonuses: bonusUsed
+          bonuses: bonusUsed,
+          cashback: calculatedBonusCashBack,
+
         },
         config: {}
       },
@@ -126,14 +149,6 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
       }
     );
   };
-
-  const maxBonusToUseForDisplay = useBonus ? Math.min(bonusBalance, totalPrice, bonusWriteOff) : 0;
-  const finalPrice = calculateFinalPrice({
-    price: totalPrice,
-    quantity: 1,
-    bonusPoints: maxBonusToUseForDisplay,
-    useBonus
-  });
 
   return (
     <Modal
@@ -182,11 +197,10 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
             <div className="flex gap-2">
               <button
                 onClick={() => setPaymentType("prepayment")}
-                className={`flex-1 p-3 rounded-xl border-2 transition-all ${
-                  paymentType === "prepayment"
-                    ? "border-[var(--color-secondary)] bg-[var(--color-secondary)]/10"
-                    : "border-gray-300 hover:border-gray-400"
-                }`}
+                className={`flex-1 p-3 rounded-xl border-2 transition-all ${paymentType === "prepayment"
+                  ? "border-[var(--color-secondary)] bg-[var(--color-secondary)]/10"
+                  : "border-gray-300 hover:border-gray-400"
+                  }`}
               >
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-medium text-gray-900">Предоплата</span>
@@ -195,11 +209,10 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
               </button>
               <button
                 onClick={() => setPaymentType("full")}
-                className={`flex-1 p-3 rounded-xl border-2 transition-all ${
-                  paymentType === "full"
-                    ? "border-[var(--color-secondary)] bg-[var(--color-secondary)]/10"
-                    : "border-gray-300 hover:border-gray-400"
-                }`}
+                className={`flex-1 p-3 rounded-xl border-2 transition-all ${paymentType === "full"
+                  ? "border-[var(--color-secondary)] bg-[var(--color-secondary)]/10"
+                  : "border-gray-300 hover:border-gray-400"
+                  }`}
               >
                 <div className="flex flex-col items-center gap-1">
                   <span className="font-medium text-gray-900">Полная оплата</span>
