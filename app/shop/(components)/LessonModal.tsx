@@ -110,7 +110,7 @@ export const LessonModal = ({ isOpen, handleCloseModal, lesson }: LessonModalPro
     useBonus
   });
 
-  const maxBonusWriteOff = Math.min(bonusBalance, price * quantity);
+  const maxBonusWriteOff = price * quantity;
 
   return (
     <Modal

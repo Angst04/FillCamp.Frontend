@@ -112,7 +112,7 @@ export const MerchModal = ({ isOpen, handleCloseModal, merch }: MerchModalProps)
     useBonus
   });
 
-  const maxBonusWriteOff = Math.min(bonusBalance, price * quantity);
+  const maxBonusWriteOff = price * quantity;
 
   return (
     <Modal
