@@ -4,7 +4,7 @@ import { Metadata } from "next";
 import { client } from "@/sanity/client";
 import { AuthGuard } from "@/components/AuthGuard";
 
-export const revalidate = 300;
+export const revalidate = 10;
 
 export const metadata: Metadata = {
   title: "Магазин FillCamp",

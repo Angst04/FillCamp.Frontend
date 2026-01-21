@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/order/:orderId/success',
-        destination: 'https://t.me/FirstSlattBot?startapp=order_:orderId',
+        destination: 'https://t.me/bonus_fillcamp_bot?startapp=order_:orderId',
         permanent: false,
       },
     ]
