@@ -6,6 +6,7 @@ import Script from "next/script";
 import { QueryProvider } from "@/context/QueryProvider";
 import Navigation from "@/components/Navigation";
 import { RouteBackground } from "@/components/RouteBackground";
+import { OrderSuccessHandler } from "@/components/OrderSuccessHandler";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,6 +33,7 @@ export default async function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <QueryProvider>
           <TelegramProvider>
+            <OrderSuccessHandler />
             <RouteBackground />
             <div
               className="min-h-screen pb-16"
