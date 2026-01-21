@@ -47,7 +47,7 @@ export default function UserListItem({
 
       </div>
       {bonus > 0 && <div className="text-right flex flex-col items-end gap-1">
-        <p className="font-semibold text-green-900">+{bonus}</p>
+        <p className="font-semibold text-green-400">+{bonus}</p>
       </div>}
     </motion.div>
   );
