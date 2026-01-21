@@ -3,6 +3,7 @@ declare global {
     first_name: string | null;
     last_name: string | null;
     tg_id: number;
+    bonus_earned: number;
   }
   type ReferralsResponse = {
     referral_link: string;
@@ -12,4 +13,4 @@ declare global {
   };
 }
 
-export {};
+export { };

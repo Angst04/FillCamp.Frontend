@@ -5,6 +5,7 @@ import { listItemVariants } from "@/lib/animations";
 
 interface UserListItemProps {
   name: string;
+  bonus: number;
   username?: string;
   avatarLetter?: string;
   avatarGradient?: string;
@@ -14,10 +15,10 @@ interface UserListItemProps {
 
 export default function UserListItem({
   name,
+  bonus,
   username,
   avatarLetter,
   avatarGradient = "from-blue-500 to-purple-600",
-  rightContent,
   className = ""
 }: UserListItemProps) {
   return (
@@ -43,8 +44,11 @@ export default function UserListItem({
             <p className="text-sm text-gray-500">{username ? `@${username}` : "Без username"}</p>
           )}
         </div>
+
       </div>
-      {rightContent && <div className="text-right">{rightContent}</div>}
+      {bonus > 0 && <div className="text-right flex flex-col items-end gap-1">
+        <p className="font-semibold text-green-900">+{bonus}</p>
+      </div>}
     </motion.div>
   );
 }
