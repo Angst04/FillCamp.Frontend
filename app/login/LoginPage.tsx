@@ -13,6 +13,23 @@ import { useQueryClient } from "@tanstack/react-query";
 // Development mode: when webApp is null, use mock data
 const isDevelopment = process.env.NODE_ENV === "development";
 
+// Test accounts for development only
+const TEST_ACCOUNTS = {
+  child: {
+    id: 123456789,
+    first_name: "Тестовый",
+    last_name: "Ребенок",
+    username: "test_child",
+    parentTelegramId: "999999999"
+  },
+  parent: {
+    id: 999999999,
+    first_name: "Тестовый",
+    last_name: "Родитель",
+    username: "test_parent"
+  }
+};
+
 export const LoginPage = () => {
   const [role, setRole] = useState<UserRole>("child");
   const [isError, setIsError] = useState<string | undefined>(undefined);
@@ -23,8 +40,14 @@ export const LoginPage = () => {
   const queryClient = useQueryClient();
 
   const handleTelegramRegistration = async () => {
+    // In production, require Telegram WebApp
+    if (!isDevelopment && !webApp) {
+      setIsError("Приложение доступно только через Telegram. Пожалуйста, откройте его в Telegram.");
+      return;
+    }
+
     // In development mode without Telegram, use mock user from context
-    const isDevMode = isDevelopment && !webApp;
+    const isDevMode = isDevelopment && !webApp && telegramContextUser;
     const telegramUser = isDevMode ? telegramContextUser : webApp?.initDataUnsafe?.user;
 
     if (!telegramUser?.id) {
@@ -128,6 +151,50 @@ export const LoginPage = () => {
     await handleTelegramRegistration();
   };
 
+  const handleTestAccountLogin = async (accountType: "child" | "parent") => {
+    if (!isDevelopment) return;
+
+    const testAccount = TEST_ACCOUNTS[accountType];
+    if (!testAccount) return;
+
+    setIsError(undefined);
+    
+    // Set role and parent ID if child
+    if (accountType === "child") {
+      setRole("child");
+      const childAccount = testAccount as typeof TEST_ACCOUNTS.child;
+      setParentTelegramId(childAccount.parentTelegramId);
+    } else {
+      setRole("parent");
+      setParentTelegramId("");
+    }
+
+    // Register user with test account data
+    const childAccount = accountType === "child" ? testAccount as typeof TEST_ACCOUNTS.child : null;
+    const registeredUser = await postUser({
+      params: {
+        first_name: testAccount.first_name,
+        last_name: testAccount.last_name,
+        username: testAccount.username,
+        phone: "+70000000000", // Mock phone for development
+        parent_telegram_id: childAccount ? Number(childAccount.parentTelegramId) : undefined,
+        is_child: accountType === "child"
+      },
+      config: {
+        headers: {
+          "X-Telegram-Id": testAccount.id.toString()
+        }
+      }
+    });
+
+    if (registeredUser.success && registeredUser.data) {
+      await queryClient.invalidateQueries({ queryKey: ["user", testAccount.id.toString()] });
+      router.push("/");
+    } else {
+      setIsError(`Ошибка при регистрации тестового аккаунта: ${registeredUser.error?.detail}`);
+    }
+  };
+
   return (
     <motion.div
       variants={cardVariants}
@@ -184,6 +251,34 @@ export const LoginPage = () => {
         Поделитесь номером телефона, чтобы получить доступ к вашему аккаунту
       </h2>
       {isError && <p className="text-red-500 text-sm text-center mb-4">{isError}</p>}
+      {isDevelopment && (
+        <motion.div
+          variants={cardVariants}
+          initial="initial"
+          animate="animate"
+          className="mt-4 pt-4 border-t border-gray-400"
+        >
+          <p className="text-center text-xs font-normal text-[#656565] mb-3">
+            Тестовые аккаунты (только dev)
+          </p>
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => handleTestAccountLogin("child")}
+              className="rounded-[18px] py-2 px-4 text-sm font-bold leading-[1.1] text-white"
+            >
+              Войти как тестовый ребенок
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => handleTestAccountLogin("parent")}
+              className="rounded-[18px] py-2 px-4 text-sm font-bold leading-[1.1] text-white"
+            >
+              Войти как тестовый родитель
+            </Button>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 };

@@ -48,9 +48,8 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
   const {
     basePrice,
     transferCost,
-    totalPrice,
+    maxBonusWriteOff,
     finalPrice,
-    calculateBonusCashBack,
     calculateOrderValues
   } = useProgrammPriceCalculation({
     selectedShift,
@@ -245,7 +244,7 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
       {/* Buy Button */}
       <div className="pt-4 mt-4 pb-8">
         <div className="flex flex-row items-end justify-between border border-gray-300 bg-gray-50/50 rounded-xl p-5 gap-4">
-          <label className="flex items-center gap-2 cursor-pointer group hover:opacity-80 transition-opacity">
+          <label className="w-full flex items-center justify-between cursor-pointer group hover:opacity-80 transition-opacity">
             <input
               type="checkbox"
               className="w-5 h-5 border-2 border-gray-600 rounded-full cursor-pointer accent-[var(--color-secondary)] checked:bg-[var(--color-secondary)] checked:border-[var(--color-secondary)] transition-all"
@@ -253,9 +252,11 @@ export const ProgrammModal = ({ isOpen, handleCloseModal, programm }: ProgrammMo
               disabled={bonusBalance <= 0}
               onChange={() => setUseBonus(!useBonus)}
             />
-            <span className="text-base font-medium text-gray-700 select-none">
-              Использовать баллы? ({bonusBalance})
-            </span>
+            <div className="flex flex-col">
+              <span className="text-base font-medium text-gray-700 select-none text-right">
+                Использовать баллы? ({bonusBalance})
+              </span>
+              <span className="text-right text-xs">Можно списать до <span className="text-[var(--color-primary)]">{maxBonusWriteOff}</span> баллов</span></div>
           </label>
         </div>
         <div className="text-right p-4">

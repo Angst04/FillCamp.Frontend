@@ -42,19 +42,31 @@ export function TelegramProvider({ children }: { children: ReactNode }) {
         isReady: true
       });
     } else {
-      // Not in Telegram or no user data - use mock data for development
-      const mockUser = {
-        id: 1,
-        first_name: "Test Parent",
-        last_name: "Parentov",
-        username: "test_parent"
-      };
+      // Only use mock data in development environment
+      const isDev = process.env.NODE_ENV === "development";
 
-      setState({
-        webApp: null, // Set to null to indicate dev mode
-        user: mockUser,
-        isReady: true
-      });
+      if (isDev) {
+        // Not in Telegram or no user data - use mock data for development
+        const mockUser = {
+          id: 1,
+          first_name: "Test Parent",
+          last_name: "Parentov",
+          username: "test_parent"
+        };
+
+        setState({
+          webApp: null, // Set to null to indicate dev mode
+          user: mockUser,
+          isReady: true
+        });
+      } else {
+        // Production: no mock data, user must be in Telegram
+        setState({
+          webApp: null,
+          user: null,
+          isReady: true
+        });
+      }
     }
   }, []);
 
