@@ -149,6 +149,7 @@ export const LessonModal = ({ isOpen, handleCloseModal, lesson }: LessonModalPro
               type="checkbox"
               className="w-5 h-5 border-2 border-gray-600 rounded-full cursor-pointer accent-[var(--color-secondary)] checked:bg-[var(--color-secondary)] checked:border-[var(--color-secondary)] transition-all"
               checked={useBonus}
+              disabled={bonusBalance <= 0}
               onChange={() => setUseBonus(!useBonus)}
             />
             <span className="text-base font-medium text-gray-700 select-none">
