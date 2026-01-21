@@ -9,9 +9,16 @@ const nextConfig: NextConfig = {
         hostname: "cdn.sanity.io"
       }
     ]
-  }
-  // No rewrites needed - nginx handles /api/v1/* routing to backend
-  // Next.js API routes in /app/api/* are handled by Next.js server
+  },
+  async redirects() {
+    return [
+      {
+        source: '/order/:orderId/success',
+        destination: 'https://t.me/FirstSlattBot?startapp=order_:orderId',
+        permanent: false,
+      },
+    ]
+  },
 };
 
 export default nextConfig;
