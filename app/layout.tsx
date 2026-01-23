@@ -7,6 +7,7 @@ import { QueryProvider } from "@/context/QueryProvider";
 import Navigation from "@/components/Navigation";
 import { RouteBackground } from "@/components/RouteBackground";
 import { OrderSuccessHandler } from "@/components/OrderSuccessHandler";
+import { TgGuard } from "@/components/TgGuard";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,17 +34,19 @@ export default async function RootLayout({
       <body className={`${inter.variable} antialiased`}>
         <QueryProvider>
           <TelegramProvider>
-            <OrderSuccessHandler />
-            <RouteBackground />
-            <div
-              className="min-h-screen pb-16"
-              style={{
-                paddingTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
-              }}
-            >
-              {children}
-            </div>
-            <Navigation />
+            <TgGuard>
+              <OrderSuccessHandler />
+              <RouteBackground />
+              <div
+                className="min-h-screen pb-16"
+                style={{
+                  paddingTop: "calc(var(--tg-content-safe-area-inset-top) + 20px)"
+                }}
+              >
+                {children}
+              </div>
+              <Navigation />
+            </TgGuard>
           </TelegramProvider>
         </QueryProvider>
       </body>
