@@ -23,7 +23,7 @@ export const TgGuard = ({ children }: { children: React.ReactNode }) => {
             Доступ к мини‑приложению возможен только через Telegram. Перейдите по ссылке и откройте мини‑апп.
           </p>
           {telegramLink ? (
-            <a href={`https://t.me/${telegramLink}`} target="_blank" rel="noreferrer">
+            <a href={telegramLink} target="_blank" rel="noreferrer">
               <Button variant="primary" className="rounded-[18px] px-6 py-3 text-white">
                 Открыть в Telegram
               </Button>
