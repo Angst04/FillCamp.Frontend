@@ -4,13 +4,17 @@ import { CustomPortableText } from "@/components/CustomPortableText";
 import { useState } from "react";
 import { ProgrammModal } from "./ProgrammModal";
 import Image from "next/image";
+import { useUserQuery } from "@/api/hooks/user/useUserQuery";
 
 export const ProgrammCard = (props: Programm) => {
   const { season, location, lang, description, image } = props;
+  const { user } = useUserQuery();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
-    setIsModalOpen(true);
+    if (user?.role === "child") return null;
+    else setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
