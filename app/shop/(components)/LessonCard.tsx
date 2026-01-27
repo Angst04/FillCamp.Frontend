@@ -2,13 +2,17 @@ import { motion } from "motion/react";
 import { cardVariants } from "@/lib/animations";
 import { useState } from "react";
 import { LessonModal } from "./LessonModal";
+import { useUserQuery } from "@/api/hooks/user/useUserQuery";
 
 export const LessonCard = (props: Lesson) => {
   const { title, description, price } = props;
+  const { user } = useUserQuery();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
-    setIsModalOpen(true);
+    if (user?.role === "child") return null;
+    else setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {

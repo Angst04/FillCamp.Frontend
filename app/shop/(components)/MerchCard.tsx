@@ -3,13 +3,17 @@ import { motion } from "motion/react";
 import Image from "next/image";
 import { useState } from "react";
 import { MerchModal } from "./MerchModal";
+import { useUserQuery } from "@/api/hooks/user/useUserQuery";
 
 export const MerchCard = (props: Merch) => {
   const { title, price, image } = props;
+  const { user } = useUserQuery();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleCardClick = () => {
-    setIsModalOpen(true);
+    if (user?.role === "child") return null;
+    else setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
